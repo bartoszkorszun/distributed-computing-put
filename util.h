@@ -29,6 +29,8 @@ void sendPacket(packet_t *pkt, int destination, int tag);
 typedef enum {InRun, InMonitor, InWant, InSection, InFinish} state_t;
 extern state_t stan;
 extern pthread_mutex_t stateMut;
+extern pthread_mutex_t lamportMutex;
+extern int lamportClock;
 /* zmiana stanu, obwarowana muteksem */
 void changeState( state_t );
 #endif

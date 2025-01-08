@@ -12,6 +12,10 @@ void *startKomWatek(void *ptr)
 	debug("czekam na recv");
         MPI_Recv( &pakiet, 1, MPI_PAKIET_T, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
 
+        pthread_mutex_lock(&lamportMutex);
+        lamportClock = (lamportClock > pakiet.ts ? lamportClock : pakiet.ts) + 1;
+        pthread_mutex_unlock(&lamportMutex);
+        
         switch ( status.MPI_TAG ) {
 	    case REQUEST: 
                 debug("Ktoś coś prosi. A niech ma!")

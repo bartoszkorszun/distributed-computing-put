@@ -14,6 +14,8 @@ state_t stan=InRun;
  * być obwarowany muteksami
  */
 pthread_mutex_t stateMut = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t lamportMutex = PTHREAD_MUTEX_INITIALIZER;
+int lamportClock = 0;
 
 struct tagNames_t{
     const char *name;
@@ -55,6 +57,12 @@ void sendPacket(packet_t *pkt, int destination, int tag)
 {
     int freepkt=0;
     if (pkt==0) { pkt = malloc(sizeof(packet_t)); freepkt=1;}
+
+    pthread_mutex_lock(&lamportMutex);
+    lamportClock++;
+    pkt->ts = lamportClock;
+    pthread_mutex_unlock(&lamportMutex);
+
     pkt->src = rank;
     MPI_Send( pkt, 1, MPI_PAKIET_T, destination, tag, MPI_COMM_WORLD);
     debug("Wysyłam %s do %d\n", tag2string( tag), destination);
