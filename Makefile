@@ -1,6 +1,5 @@
 SOURCES=$(wildcard *.c)
 HEADERS=$(SOURCES:.c=.h)
-#FLAGS=-DDEBUG -g
 FLAGS=-g
 
 all: main tags

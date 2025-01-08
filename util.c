@@ -65,7 +65,6 @@ void sendPacket(packet_t *pkt, int destination, int tag)
 
     pkt->src = rank;
     MPI_Send( pkt, 1, MPI_PAKIET_T, destination, tag, MPI_COMM_WORLD);
-    debug("Wysyłam %s do %d\n", tag2string( tag), destination);
     if (freepkt) free(pkt);
 }
 

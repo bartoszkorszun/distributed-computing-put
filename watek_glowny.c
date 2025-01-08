@@ -12,9 +12,7 @@ void mainLoop()
 	    case InRun: 
 		perc = random()%100;
 		if ( perc < 25 ) {
-		    debug("Perc: %d", perc);
 		    println("Ubiegam się o sekcję krytyczną")
-		    debug("Zmieniam stan na wysyłanie");
 		    packet_t *pkt = malloc(sizeof(packet_t));
 		    pkt->data = perc;
 		    ackCount = 0;
@@ -29,7 +27,6 @@ void mainLoop()
 					   // ZOB. regułę tags: w Makefile (naciśnij gf gdy kursor jest na nazwie pliku)
 		    free(pkt);
 		} // a skoro już jesteśmy przy komendach vi, najedź kursorem na } i wciśnij %  (niestety głupieje przy komentarzach :( )
-		debug("Skończyłem myśleć");
 		break;
 	    case InWant:
 		println("Czekam na wejście do sekcji krytycznej")
@@ -43,9 +40,7 @@ void mainLoop()
 		println("Jestem w sekcji krytycznej")
 		    sleep(5);
 		//if ( perc < 25 ) {
-		    debug("Perc: %d", perc);
 		    println("Wychodzę z sekcji krytycznej")
-		    debug("Zmieniam stan na wysyłanie");
 		    packet_t *pkt = malloc(sizeof(packet_t));
 		    pkt->data = perc;
 		    for (int i=0;i<=size-1;i++)
