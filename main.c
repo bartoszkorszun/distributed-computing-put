@@ -1,51 +1,35 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <mpi.h>
-#include <unistd.h>
-#include "lamport.h"
-#include "arbitration.h"
-#include "utils.h"
+/* w main.h także makra println oraz debug -  z kolorkami! */
+#include "main.h"
+#include "watek_glowny.h"
+#include "watek_komunikacyjny.h"
 
-#define NUM_ARBITERS 5
-#define TAG_INVITATION 1
-#define TAG_RESPONSE 2
-#define TAG_REQUEST_ARBITER 3
-#define TAG_RELEASE_ARBITER 4
+/*
+ * W main.h extern int rank (zapowiedź) w main.c int rank (definicja)
+ * Zwróćcie uwagę, że każdy proces ma osobą pamięć, ale w ramach jednego
+ * procesu wątki współdzielą zmienne - więc dostęp do nich powinien
+ * być obwarowany muteksami. Rank i size akurat są write-once, więc nie trzeba,
+ * ale zob util.c oraz util.h - zmienną state_t state i funkcję changeState
+ *
+ */
+int rank, size;
+int ackCount = 0;
+/* 
+ * Każdy proces ma dwa wątki - główny i komunikacyjny
+ * w plikach, odpowiednio, watek_glowny.c oraz (siurpryza) watek_komunikacyjny.c
+ *
+ *
+ */
 
-void process_function(int rank, int num_processes) {
-    while (1) {
-        // Zgłaszanie chęci uczestnictwa w zawodach
-        if (wants_to_participate()) {
-            increment_clock();
-            printf("Process %d broadcasting invitation (clock: %d)\n", rank, get_clock());
+pthread_t threadKom;
 
-            // Wysłanie zaproszenia do wszystkich
-            for (int i = 0; i < num_processes; i++) {
-                if (i != rank) {
-                    MPI_Send(&rank, 1, MPI_INT, i, TAG_INVITATION, MPI_COMM_WORLD);
-                }
-            }
-
-            // Odbieranie odpowiedzi
-            int ack_count = 0;
-            for (int i = 0; i < num_processes - 1; i++) {
-                int response;
-                MPI_Recv(&response, 1, MPI_INT, MPI_ANY_SOURCE, TAG_RESPONSE, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-                if (response == 1) { // ACK
-                    ack_count++;
-                }
-            }
-
-            // Sprawdzenie, czy można rozpocząć zawody
-            if (ack_count >= 2 && try_to_get_arbitrator(rank)) {
-                participate_in_competition(rank);
-                release_arbitrator(rank);
-            }
-        }
-
-        MPI_Barrier(MPI_COMM_WORLD); // Synchronizacja cykli
-        sleep(rand() % 5 + 1); // Losowy czas oczekiwania
-    }
+void finalizuj()
+{
+    pthread_mutex_destroy( &stateMut);
+    /* Czekamy, aż wątek potomny się zakończy */
+    println("czekam na wątek \"komunikacyjny\"\n" );
+    pthread_join(threadKom,NULL);
+    MPI_Type_free(&MPI_PAKIET_T);
+    MPI_Finalize();
 }
 
 void check_thread_support(int provided)
@@ -72,23 +56,33 @@ void check_thread_support(int provided)
     }
 }
 
-int main(int argc, char **argv) {
-    int rank, num_processes;
 
+int main(int argc, char **argv)
+{
+    MPI_Status status;
     int provided;
     MPI_Init_thread(&argc, &argv, MPI_THREAD_MULTIPLE, &provided);
     check_thread_support(provided);
     srand(rank);
-
-    MPI_Comm_size(MPI_COMM_WORLD, &num_processes);
+    /* zob. util.c oraz util.h */
+    inicjuj_typ_pakietu(); // tworzy typ pakietu
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    /* startKomWatek w watek_komunikacyjny.c 
+     * w vi najedź kursorem na nazwę pliku i wciśnij klawisze gf
+     * powrót po wciśnięciu ctrl+6
+     * */
+    pthread_create( &threadKom, NULL, startKomWatek , 0);
 
-    // init_lamport_clock();
-    // init_arbitration(NUM_ARBITERS);
-
-    // process_function(rank, num_processes);
-
-    // cleanup_arbitration();
-    MPI_Finalize();
+    /* mainLoop w watek_glowny.c 
+     * w vi najedź kursorem na nazwę pliku i wciśnij klawisze gf
+     * powrót po wciśnięciu ctrl+6
+     * */
+    mainLoop(); // możesz także wcisnąć ctrl-] na nazwie funkcji
+		// działa, bo używamy ctags (zob Makefile)
+		// jak nie działa, wpisz set tags=./tags :)
+    
+    finalizuj();
     return 0;
 }
+

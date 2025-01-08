@@ -1,24 +1,20 @@
-CC = mpicc
-CFLAGS = -Wall -pthread
+SOURCES=$(wildcard *.c)
+HEADERS=$(SOURCES:.c=.h)
+#FLAGS=-DDEBUG -g
+FLAGS=-g
 
-OBJ = main.o lamport.o arbitration.o utils.o
+all: main tags
 
-all: program
+main: $(SOURCES) $(HEADERS) Makefile
+	mpicc $(SOURCES) $(FLAGS) -o main
 
-program: $(OBJ)
-	$(CC) $(CFLAGS) -o program $(OBJ)
-
-main.o: main.c lamport.h arbitration.h utils.h
-	$(CC) $(CFLAGS) -c main.c
-
-lamport.o: lamport.c lamport.h
-	$(CC) $(CFLAGS) -c lamport.c
-
-arbitration.o: arbitration.c arbitration.h
-	$(CC) $(CFLAGS) -c arbitration.c
-
-utils.o: utils.c utils.h
-	$(CC) $(CFLAGS) -c utils.c
+clear: clean
 
 clean:
-	rm -f *.o program
+	rm main a.out
+
+tags: ${SOURCES} ${HEADERS}
+	ctags -R .
+
+run: main Makefile tags
+	mpirun -oversubscribe -np 50 ./main
