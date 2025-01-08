@@ -26,7 +26,7 @@ struct tagNames_t{
 const char *const tag2string( int tag )
 {
     for (int i=0; i <sizeof(tagNames)/sizeof(struct tagNames_t);i++) {
-	if ( tagNames[i].tag == tag )  return tagNames[i].name;
+	    if ( tagNames[i].tag == tag )  return tagNames[i].name;
     }
     return "<unknown>";
 }
@@ -72,7 +72,7 @@ void changeState( state_t newState )
 {
     pthread_mutex_lock( &stateMut );
     if (stan==InFinish) { 
-	pthread_mutex_unlock( &stateMut );
+	    pthread_mutex_unlock( &stateMut );
         return;
     }
     stan = newState;
