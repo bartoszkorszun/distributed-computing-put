@@ -27,10 +27,11 @@ void mainLoop()
 			println("Czekam na utworzenie grupy")
 			// tutaj zapewne jakiś semafor albo zmienna warunkowa
 			// bo aktywne czekanie jest BUE
+			ackCount++;
 			if ( ackCount > 2) 
-				changeState( InSection );
+				changeState( InGroup );
 			break;
-	    case InSection:
+	    case InGroup:
 			// tutaj zapewne jakiś muteks albo zmienna warunkowa
 			println("Jestem w grupie")
 				sleep(5);
