@@ -7,9 +7,6 @@ int ackCount = 0;
 int availableArbiters = MAX_ARBITERS;
 pthread_mutex_t arbiterMutex = PTHREAD_MUTEX_INITIALIZER;
 
-group_t groups[MAX_GROUPS];
-int groupCount = 0;
-
 pthread_t threadKom;
 
 void finalizuj()
@@ -51,7 +48,6 @@ int main(int argc, char **argv)
     MPI_Init_thread(&argc, &argv, MPI_THREAD_MULTIPLE, &provided);
     check_thread_support(provided);
     srand(rank);
-    
     inicjuj_typ_pakietu(); 
     MPI_Comm_size(MPI_COMM_WORLD, &size);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);

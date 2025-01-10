@@ -6,10 +6,9 @@ typedef struct
 {
     int ts;       
     int src;  
-    int data; 
 } packet_t;
 
-#define NITEMS 3
+#define NITEMS 2
 
 #define ACK     1
 #define REQUEST 2

@@ -46,13 +46,12 @@ const char *const tag2string( int tag )
 
 void inicjuj_typ_pakietu()
 {
-    int blocklengths[NITEMS] = {1,1,1};
-    MPI_Datatype typy[NITEMS] = {MPI_INT, MPI_INT, MPI_INT};
+    int blocklengths[NITEMS] = {1,1};
+    MPI_Datatype typy[NITEMS] = {MPI_INT, MPI_INT};
 
     MPI_Aint     offsets[NITEMS]; 
     offsets[0] = offsetof(packet_t, ts);
     offsets[1] = offsetof(packet_t, src);
-    offsets[2] = offsetof(packet_t, data);
 
     MPI_Type_create_struct(NITEMS, blocklengths, offsets, typy, &MPI_PAKIET_T);
 
@@ -62,7 +61,7 @@ void inicjuj_typ_pakietu()
 void sendPacket(packet_t *pkt, int destination, int tag)
 {
     int freepkt = 0;
-    if (pkt == 0) { pkt = malloc(sizeof(packet_t)); freepkt = 1;}
+    if (pkt == 0) { pkt = malloc(sizeof(packet_t)); freepkt = 1; }
 
     pthread_mutex_lock(&lamportMutex);
     lamportClock++;
@@ -82,17 +81,7 @@ void changeState( state_t newState )
 	    pthread_mutex_unlock( &stateMut );
         return;
     }
-    if (newState == InGroup)
-    {
-        if (groupCount < MAX_GROUPS)
-        {
-            groups[groupCount].members[groups[groupCount].size++] = rank;
-            if (groups[groupCount].size > 2)
-            {
-                groupCount++;
-            }
-        }
-    }
+    
     state = newState;
     pthread_mutex_unlock( &stateMut );
 }

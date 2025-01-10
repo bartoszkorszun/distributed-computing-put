@@ -18,43 +18,16 @@ void *startKomWatek(void *ptr)
         switch ( status.MPI_TAG ) 
         {
             case REQUEST: 
-                int inGroup = 0;
-                for ( int i = 0; i < groupCount; i++ ) 
+                if (state == InWant) 
                 {
-                    for ( int j = 0; j < groups[i].size; j++ ) 
-                    {
-                        if ( groups[i].members[j] == status.MPI_SOURCE ) 
-                        {
-                            inGroup = 1;
-                            break;
-                        }
-                    }
-                    if ( inGroup ) break;
-                }
-                if (inGroup) sendPacket( 0, status.MPI_SOURCE, NACK );
-                else
-                {
-                    switch ( state ) 
-                    {
-                        case InWant: 
-                            pthread_mutex_lock(&stateMut);
-                            if (groupCount < MAX_GROUPS) 
-                            {
-                                groups[groupCount].members[groups[groupCount].size++] = status.MPI_SOURCE;
-                            }
-                            pthread_mutex_unlock(&stateMut);
-                            sendPacket( 0, status.MPI_SOURCE, ACK );
-                            break;
-                        case InGroup: 
-                            sendPacket( 0, status.MPI_SOURCE, NACK );
-                            break;
-                        default: 
-                            break;
-                    }
+                    sendPacket( &pakiet, status.MPI_SOURCE, ACK );
                 }
                 break;
             case ACK: 
-                ackCount++; 
+                if (state == InWant)
+                {
+                    ackCount++;
+                }
                 break;
             default:
                 break;
