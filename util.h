@@ -29,4 +29,22 @@ extern pthread_mutex_t lamportMutex;
 extern int lamportClock;
 
 void changeState( state_t );
+
+extern int size;
+#define MAX_MEMBERS 10
+
+typedef struct 
+{
+    int members[MAX_MEMBERS];
+    int size;
+} group_t;
+
+extern group_t myGroup;
+extern pthread_mutex_t groupMutex;
+
+int addMember(group_t* group, int member);
+int isMember(group_t* group, int member);
+int isGroupFull(group_t* group);
+void initGroup(group_t* group); 
+
 #endif

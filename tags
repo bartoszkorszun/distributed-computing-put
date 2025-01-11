@@ -17,13 +17,13 @@ InRun	util.h	/^typedef enum {InRun, InWant, InGroup, InCompetition, InFinish} st
 InWant	util.h	/^typedef enum {InRun, InWant, InGroup, InCompetition, InFinish} state_t;$/;"	e	enum:__anon2
 MAINH	main.h	2;"	d
 MAX_ARBITERS	main.h	17;"	d
-MAX_MEMBERS	main.h	18;"	d
+MAX_MEMBERS	util.h	34;"	d
 MPI_PAKIET_T	util.c	/^MPI_Datatype MPI_PAKIET_T;$/;"	v
 NACK	util.h	18;"	d
 NITEMS	util.h	11;"	d
 RELEASE	util.h	15;"	d
 REQUEST	util.h	14;"	d
-ROOT	main.h	20;"	d
+ROOT	main.h	19;"	d
 SEC_IN_STATE	main.h	15;"	d
 SOURCES	Makefile	/^SOURCES=$(wildcard *.c)$/;"	m
 STATE_CHANGE_PROB	main.h	16;"	d
@@ -32,25 +32,31 @@ UTILH	util.h	2;"	d
 WATEK_GLOWNY_H	watek_glowny.h	2;"	d
 WATEK_KOMUNIKACYJNY_H	watek_komunikacyjny.h	2;"	d
 ackCount	main.c	/^int ackCount = 0;$/;"	v
+addMember	util.c	/^int addMember(group_t* group, int member) {$/;"	f
 arbiterMutex	main.c	/^pthread_mutex_t arbiterMutex = PTHREAD_MUTEX_INITIALIZER;$/;"	v
 availableArbiters	main.c	/^int availableArbiters = MAX_ARBITERS;$/;"	v
 changeState	util.c	/^void changeState( state_t newState )$/;"	f
 check_thread_support	main.c	/^void check_thread_support(int provided)$/;"	f
 finalizuj	main.c	/^void finalizuj()$/;"	f
-group_t	main.h	/^} group_t;$/;"	t	typeref:struct:__anon3
+groupMutex	util.c	/^pthread_mutex_t groupMutex = PTHREAD_MUTEX_INITIALIZER;$/;"	v
+group_t	util.h	/^} group_t;$/;"	t	typeref:struct:__anon3
 inicjuj_typ_pakietu	util.c	/^void inicjuj_typ_pakietu()$/;"	f
+initGroup	util.c	/^void initGroup(group_t* group) {$/;"	f
+isGroupFull	util.c	/^int isGroupFull(group_t* group) {$/;"	f
+isMember	util.c	/^int isMember(group_t* group, int member) {$/;"	f
 lamportClock	util.c	/^int lamportClock = 0;$/;"	v
 lamportMutex	util.c	/^pthread_mutex_t lamportMutex = PTHREAD_MUTEX_INITIALIZER;$/;"	v
 main	main.c	/^int main(int argc, char **argv)$/;"	f
 mainLoop	watek_glowny.c	/^void mainLoop()$/;"	f
-members	main.h	/^    int members[MAX_MEMBERS];$/;"	m	struct:__anon3
+members	util.h	/^    int members[MAX_MEMBERS];$/;"	m	struct:__anon3
+myGroup	util.c	/^group_t myGroup;$/;"	v
 name	util.c	/^    const char *name;$/;"	m	struct:tagNames_t	file:
 packet_t	util.h	/^} packet_t;$/;"	t	typeref:struct:__anon1
-println	main.h	36;"	d
+println	main.h	28;"	d
 rank	main.c	/^int rank, size;$/;"	v
 sendPacket	util.c	/^void sendPacket(packet_t *pkt, int destination, int tag)$/;"	f
 size	main.c	/^int rank, size;$/;"	v
-size	main.h	/^    int size;$/;"	m	struct:__anon3
+size	util.h	/^    int size;$/;"	m	struct:__anon3
 src	util.h	/^    int src;  $/;"	m	struct:__anon1
 startKomWatek	watek_komunikacyjny.c	/^void *startKomWatek(void *ptr)$/;"	f
 state	util.c	/^state_t state = InRun;$/;"	v
