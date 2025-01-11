@@ -39,12 +39,14 @@ typedef struct
     int size;
 } group_t;
 
+#define GITEMS 2
+
 extern group_t myGroup;
 extern pthread_mutex_t groupMutex;
 
 int addMember(group_t* group, int member);
 int isMember(group_t* group, int member);
 int isGroupFull(group_t* group);
-void initGroup(group_t* group); 
+void initGroup(); 
 
 #endif

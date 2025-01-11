@@ -49,6 +49,7 @@ int main(int argc, char **argv)
     check_thread_support(provided);
     srand(rank);
     inicjuj_typ_pakietu(); 
+    initGroup();
     MPI_Comm_size(MPI_COMM_WORLD, &size);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     

@@ -18,15 +18,26 @@ void *startKomWatek(void *ptr)
         switch ( status.MPI_TAG ) 
         {
             case REQUEST: 
-                if (state == InWant) 
-                {
-                    sendPacket( &pakiet, status.MPI_SOURCE, ACK );
-                }
-                break;
-            case ACK: 
                 if (state == InWant)
                 {
+                    sendPacket( &pakiet, status.MPI_SOURCE, ACK );
+                    addMember( &myGroup, status.MPI_SOURCE );
+                    changeState( InGroup );
+                }
+                else sendPacket( &pakiet, status.MPI_SOURCE, NACK );
+                break;
+            case ACK: 
+                if (state == InWant || state == InGroup)
+                {
                     ackCount++;
+                    addMember( &myGroup, status.MPI_SOURCE );
+                    changeState( InGroup );
+                }
+                break;
+            case NACK:
+                if (state == InWant) 
+                {
+                    println("Otrzymałem NACK od %d", status.MPI_SOURCE);
                 }
                 break;
             default:

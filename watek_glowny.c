@@ -21,6 +21,8 @@ void mainLoop()
 					for (int i = 0; i <= size-1; i++)
 						if (i != rank) sendPacket( pkt, i, REQUEST );
 					free(pkt);
+					group_t *myGroup = malloc(sizeof(group_t));
+					addMember(myGroup, rank);
 					changeState( InWant ); 
 				} 
 				break;

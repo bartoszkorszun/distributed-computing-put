@@ -1,6 +1,7 @@
 #include "main.h"
 #include "util.h"
 MPI_Datatype MPI_PAKIET_T;
+MPI_Datatype MPI_GRUPA_T;
 
 state_t state = InRun;
 pthread_mutex_t stateMut = PTHREAD_MUTEX_INITIALIZER;
@@ -61,6 +62,19 @@ void inicjuj_typ_pakietu()
     MPI_Type_commit(&MPI_PAKIET_T);
 }
 
+void initGroup() {
+    int blocklengths[GITEMS] = {1, MAX_MEMBERS};
+    MPI_Datatype typy[GITEMS] = {MPI_INT, MPI_INT};
+
+    MPI_Aint     offsets[GITEMS];
+    offsets[0] = offsetof(group_t, size);
+    offsets[1] = offsetof(group_t, members);
+
+    MPI_Type_create_struct(GITEMS, blocklengths, offsets, typy, &MPI_GRUPA_T);
+
+    MPI_Type_commit(&MPI_GRUPA_T);
+}
+
 void sendPacket(packet_t *pkt, int destination, int tag)
 {
     int freepkt = 0;
@@ -89,18 +103,8 @@ void changeState( state_t newState )
     pthread_mutex_unlock( &stateMut );
 }
 
-void initGroup(group_t* group) {
-    pthread_mutex_lock(&groupMutex);
-    group->size = 0;
-    for (int i = 0; i < MAX_MEMBERS; i++) {
-        group->members[i] = -1;
-    }
-    pthread_mutex_unlock(&groupMutex);
-}
-
 int addMember(group_t* group, int member) {
     pthread_mutex_lock(&groupMutex);
-    
     // Check if group is full
     if (group->size >= MAX_MEMBERS) {
         pthread_mutex_unlock(&groupMutex);
@@ -118,28 +122,7 @@ int addMember(group_t* group, int member) {
     // Add new member
     group->members[group->size] = member;
     group->size++;
-    
+    println("Member %d added to group", group->members[group->size - 1]);
     pthread_mutex_unlock(&groupMutex);
     return 1;
-}
-
-int isMember(group_t* group, int member) {
-    pthread_mutex_lock(&groupMutex);
-    
-    for (int i = 0; i < group->size; i++) {
-        if (group->members[i] == member) {
-            pthread_mutex_unlock(&groupMutex);
-            return 1;
-        }
-    }
-    
-    pthread_mutex_unlock(&groupMutex);
-    return 0;
-}
-
-int isGroupFull(group_t* group) {
-    pthread_mutex_lock(&groupMutex);
-    int result = (group->size >= MAX_MEMBERS);
-    pthread_mutex_unlock(&groupMutex);
-    return result;
 }
