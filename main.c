@@ -4,6 +4,8 @@
 
 int rank, size;
 int ackCount = 0;
+int nackCount = 0;
+int isInitiator = 1;
 int availableArbiters = MAX_ARBITERS;
 pthread_mutex_t arbiterMutex = PTHREAD_MUTEX_INITIALIZER;
 

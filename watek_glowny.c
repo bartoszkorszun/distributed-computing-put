@@ -16,21 +16,42 @@ void mainLoop()
 				if ( perc < 15 ) 
 				{
 					ackCount = 0;
+					nackCount = 0;
+					isInitiator = 1;
 					println("Chcę się napić")
 					packet_t *pkt = malloc(sizeof(packet_t));
+					changeState( InWant ); 
+					pkt->isInitiator = 1;
 					for (int i = 0; i <= size-1; i++)
 						if (i != rank) sendPacket( pkt, i, REQUEST );
 					free(pkt);
-					group_t *myGroup = malloc(sizeof(group_t));
-					addMember(myGroup, rank);
-					changeState( InWant ); 
+					addMember(&myGroup, rank, lamportClock);
 				} 
 				break;
 			case InWant:
 				println("Czekam na utworzenie grupy")
+				if (nackCount == size-1) 
+				{
+					packet_t *pkt = malloc(sizeof(packet_t));
+					pkt->isInitiator = 0;
+					isInitiator = 0;
+				}
 				break;
 			case InGroup:
 				println("Jestem w grupie")
+				println("Członkowie grupy:");
+				for (int i = 0; i < myGroup.groupSize; i++) 
+				{
+					printf(" - %d LC %d\n", myGroup.members[i], myGroup.timestamps[i]);
+				}
+				if (isInitiator)
+				{
+					for (int i = 0; i < initiatorsCount; i++) 
+					{
+						sendGroup( &myGroup, initiators[i], SGRP );
+					}
+				}
+					
 				// int leader = rank;
 				// for (int i = 0; i < groupCount; i++)
 				// {

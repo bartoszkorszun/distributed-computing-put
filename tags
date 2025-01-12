@@ -4,12 +4,12 @@
 !_TAG_PROGRAM_NAME	Exuberant Ctags	//
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
 !_TAG_PROGRAM_VERSION	5.9~svn20110310	//
-ACK	util.h	13;"	d
-APP_PKT	util.h	16;"	d
+ACK	util.h	14;"	d
+APP_PKT	util.h	17;"	d
 FALSE	main.h	14;"	d
-FINISH	util.h	17;"	d
+FINISH	util.h	18;"	d
 FLAGS	Makefile	/^FLAGS=-g$/;"	m
-GITEMS	util.h	42;"	d
+GITEMS	util.h	47;"	d
 HEADERS	Makefile	/^HEADERS=$(SOURCES:.c=.h)$/;"	m
 InCompetition	util.h	/^typedef enum {InRun, InWant, InGroup, InCompetition, InFinish} state_t;$/;"	e	enum:__anon2
 InFinish	util.h	/^typedef enum {InRun, InWant, InGroup, InCompetition, InFinish} state_t;$/;"	e	enum:__anon2
@@ -18,15 +18,17 @@ InRun	util.h	/^typedef enum {InRun, InWant, InGroup, InCompetition, InFinish} st
 InWant	util.h	/^typedef enum {InRun, InWant, InGroup, InCompetition, InFinish} state_t;$/;"	e	enum:__anon2
 MAINH	main.h	2;"	d
 MAX_ARBITERS	main.h	17;"	d
-MAX_MEMBERS	util.h	34;"	d
+MAX_MEMBERS	util.h	38;"	d
 MPI_GRUPA_T	util.c	/^MPI_Datatype MPI_GRUPA_T;$/;"	v
 MPI_PAKIET_T	util.c	/^MPI_Datatype MPI_PAKIET_T;$/;"	v
-NACK	util.h	18;"	d
-NITEMS	util.h	11;"	d
-RELEASE	util.h	15;"	d
-REQUEST	util.h	14;"	d
+NACK	util.h	19;"	d
+NITEMS	util.h	12;"	d
+RELEASE	util.h	16;"	d
+REQUEST	util.h	15;"	d
+RGRP	util.h	21;"	d
 ROOT	main.h	19;"	d
 SEC_IN_STATE	main.h	15;"	d
+SGRP	util.h	20;"	d
 SOURCES	Makefile	/^SOURCES=$(wildcard *.c)$/;"	m
 STATE_CHANGE_PROB	main.h	16;"	d
 TRUE	main.h	13;"	d
@@ -34,29 +36,37 @@ UTILH	util.h	2;"	d
 WATEK_GLOWNY_H	watek_glowny.h	2;"	d
 WATEK_KOMUNIKACYJNY_H	watek_komunikacyjny.h	2;"	d
 ackCount	main.c	/^int ackCount = 0;$/;"	v
-addMember	util.c	/^int addMember(group_t* group, int member) {$/;"	f
+addInitiator	util.c	/^int addInitiator(int initiator) {$/;"	f
+addMember	util.c	/^int addMember(group_t* group, int member, int timestamp) {$/;"	f
 arbiterMutex	main.c	/^pthread_mutex_t arbiterMutex = PTHREAD_MUTEX_INITIALIZER;$/;"	v
 availableArbiters	main.c	/^int availableArbiters = MAX_ARBITERS;$/;"	v
 changeState	util.c	/^void changeState( state_t newState )$/;"	f
 check_thread_support	main.c	/^void check_thread_support(int provided)$/;"	f
 finalizuj	main.c	/^void finalizuj()$/;"	f
 groupMutex	util.c	/^pthread_mutex_t groupMutex = PTHREAD_MUTEX_INITIALIZER;$/;"	v
+groupSize	util.h	/^    int groupSize;$/;"	m	struct:__anon3
 group_t	util.h	/^} group_t;$/;"	t	typeref:struct:__anon3
 inicjuj_typ_pakietu	util.c	/^void inicjuj_typ_pakietu()$/;"	f
 initGroup	util.c	/^void initGroup() {$/;"	f
+initiators	util.c	/^int initiators[MAX_MEMBERS];$/;"	v
+initiatorsCount	util.c	/^int initiatorsCount = 0;$/;"	v
+initiatorsMutex	util.c	/^pthread_mutex_t initiatorsMutex = PTHREAD_MUTEX_INITIALIZER;$/;"	v
+isInitiator	main.c	/^int isInitiator = 1;$/;"	v
+isInitiator	util.h	/^    int isInitiator;$/;"	m	struct:__anon1
 lamportClock	util.c	/^int lamportClock = 0;$/;"	v
 lamportMutex	util.c	/^pthread_mutex_t lamportMutex = PTHREAD_MUTEX_INITIALIZER;$/;"	v
 main	main.c	/^int main(int argc, char **argv)$/;"	f
 mainLoop	watek_glowny.c	/^void mainLoop()$/;"	f
 members	util.h	/^    int members[MAX_MEMBERS];$/;"	m	struct:__anon3
 myGroup	util.c	/^group_t myGroup;$/;"	v
+nackCount	main.c	/^int nackCount = 0;$/;"	v
 name	util.c	/^    const char *name;$/;"	m	struct:tagNames_t	file:
 packet_t	util.h	/^} packet_t;$/;"	t	typeref:struct:__anon1
-println	main.h	28;"	d
+println	main.h	30;"	d
 rank	main.c	/^int rank, size;$/;"	v
+sendGroup	util.c	/^void sendGroup(group_t *group, int destination, int tag) {$/;"	f
 sendPacket	util.c	/^void sendPacket(packet_t *pkt, int destination, int tag)$/;"	f
 size	main.c	/^int rank, size;$/;"	v
-size	util.h	/^    int size;$/;"	m	struct:__anon3
 src	util.h	/^    int src;  $/;"	m	struct:__anon1
 startKomWatek	watek_komunikacyjny.c	/^void *startKomWatek(void *ptr)$/;"	f
 state	util.c	/^state_t state = InRun;$/;"	v
@@ -67,4 +77,5 @@ tag2string	util.c	/^const char *const tag2string( int tag )$/;"	f
 tagNames	util.c	/^tagNames[] = $/;"	v	typeref:struct:tagNames_t
 tagNames_t	util.c	/^struct tagNames_t$/;"	s	file:
 threadKom	main.c	/^pthread_t threadKom;$/;"	v
+timestamps	util.h	/^    int timestamps[MAX_MEMBERS];$/;"	m	struct:__anon3
 ts	util.h	/^    int ts;       $/;"	m	struct:__anon1

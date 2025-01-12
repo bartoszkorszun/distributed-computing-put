@@ -19,11 +19,13 @@
 #define ROOT 0
 
 extern int rank;
+extern int size;
 extern int ackCount;
+extern int nackCount;
 extern int availableArbiters;
+extern int isInitiator;
 extern pthread_mutex_t arbiterMutex;
 extern pthread_t threadKom;
 
-// makro println
 #define println(FORMAT,...) printf("%c[%d;%dm [%d] [LC:%d]: " FORMAT "%c[%d;%dm\n",  27, (1+(rank/7))%2, 31+(6+rank)%7, rank, lamportClock, ##__VA_ARGS__, 27,0,37);
 #endif
