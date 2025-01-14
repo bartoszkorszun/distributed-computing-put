@@ -1,7 +1,6 @@
 #include "main.h"
 #include "util.h"
 MPI_Datatype MPI_PAKIET_T;
-MPI_Datatype MPI_GRUPA_T;
 
 state_t state = InRun;
 pthread_mutex_t stateMut = PTHREAD_MUTEX_INITIALIZER;
@@ -52,7 +51,7 @@ const char *const tag2string( int tag )
     return "<unknown>";
 }
 
-void inicjuj_typ_pakietu()
+void init_packet_type()
 {
     int blocklengths[NITEMS] = {1,1,1};
     MPI_Datatype typy[NITEMS] = {MPI_INT, MPI_INT, MPI_INT};
@@ -67,18 +66,14 @@ void inicjuj_typ_pakietu()
     MPI_Type_commit(&MPI_PAKIET_T);
 }
 
-void initGroup() {
-    int blocklengths[GITEMS] = {1, MAX_MEMBERS, MAX_MEMBERS};
-    MPI_Datatype typy[GITEMS] = {MPI_INT, MPI_INT, MPI_INT};
-
-    MPI_Aint     offsets[GITEMS];
-    offsets[0] = offsetof(group_t, groupSize);
-    offsets[1] = offsetof(group_t, members);
-    offsets[2] = offsetof(group_t, timestamps);
-
-    MPI_Type_create_struct(GITEMS, blocklengths, offsets, typy, &MPI_GRUPA_T);
-
-    MPI_Type_commit(&MPI_GRUPA_T);
+void initGroup(void) {
+    pthread_mutex_lock(&groupMutex);
+    myGroup.groupSize = 0;
+    for (int i = 0; i < MAX_MEMBERS; i++) {
+        myGroup.members[i] = -1;
+        myGroup.timestamps[i] = -1;
+    }
+    pthread_mutex_unlock(&groupMutex);
 }
 
 void sendPacket(packet_t *pkt, int destination, int tag)
@@ -96,12 +91,12 @@ void sendPacket(packet_t *pkt, int destination, int tag)
     if (freepkt) free(pkt);
 }
 
-void sendGroup(group_t *group, int destination, int tag) {
-    int freeGroup = 0;
-    if (group == 0) { group = malloc(sizeof(group_t)); freeGroup = 1; }
-
-    MPI_Send(group, 1, MPI_GRUPA_T, destination, tag, MPI_COMM_WORLD);
-    if (freeGroup) free(group);
+void sendGroup(int destination, int tag) {
+    packet_t *groupPacket = malloc(sizeof(packet_t));
+    groupPacket->src = myGroup.members[0];
+    groupPacket->ts = myGroup.timestamps[0];
+    groupPacket->isInitiator = 0;
+    MPI_Send(groupPacket, 1, MPI_PAKIET_T, destination, tag, MPI_COMM_WORLD);
 }
 
 void changeState( state_t newState )
@@ -117,26 +112,26 @@ void changeState( state_t newState )
     pthread_mutex_unlock( &stateMut );
 }
 
-int addMember(group_t* group, int member, int timestamp) {
+int addMember(int member, int timestamp) {
     pthread_mutex_lock(&groupMutex);
     // Check if group is full
-    if (group->groupSize >= MAX_MEMBERS) {
+    if (myGroup.groupSize >= MAX_MEMBERS) {
         pthread_mutex_unlock(&groupMutex);
         return 0;
     }
     
     // Check if member already exists
-    for (int i = 0; i < group->groupSize; i++) {
-        if (group->members[i] == member) {
+    for (int i = 0; i < myGroup.groupSize; i++) {
+        if (myGroup.members[i] == member) {
             pthread_mutex_unlock(&groupMutex);
             return 0;
         }
     }
     
-    group->members[group->groupSize] = member;
-    group->timestamps[group->groupSize] = timestamp;
-    group->groupSize++;
-    println("Member %d added to group", group->members[group->groupSize - 1]);
+    myGroup.members[myGroup.groupSize] = member;
+    myGroup.timestamps[myGroup.groupSize] = timestamp;
+    myGroup.groupSize++;
+    println("Member %d added to group", myGroup.members[myGroup.groupSize - 1]);
     pthread_mutex_unlock(&groupMutex);
     return 1;
 }

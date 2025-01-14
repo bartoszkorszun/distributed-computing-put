@@ -50,8 +50,9 @@ int main(int argc, char **argv)
     MPI_Init_thread(&argc, &argv, MPI_THREAD_MULTIPLE, &provided);
     check_thread_support(provided);
     srand(rank);
-    inicjuj_typ_pakietu(); 
+    init_packet_type(); 
     initGroup();
+
     MPI_Comm_size(MPI_COMM_WORLD, &size);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     

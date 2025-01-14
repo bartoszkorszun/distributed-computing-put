@@ -25,7 +25,7 @@ void mainLoop()
 					for (int i = 0; i <= size-1; i++)
 						if (i != rank) sendPacket( pkt, i, REQUEST );
 					free(pkt);
-					addMember(&myGroup, rank, lamportClock);
+					addMember(rank, lamportClock);
 				} 
 				break;
 			case InWant:
@@ -48,7 +48,7 @@ void mainLoop()
 				{
 					for (int i = 0; i < initiatorsCount; i++) 
 					{
-						sendGroup( &myGroup, initiators[i], SGRP );
+						sendGroup( initiators[i], SGRP );
 					}
 				}
 					

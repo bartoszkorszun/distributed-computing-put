@@ -21,8 +21,7 @@ typedef struct
 #define RGRP    8
 
 extern MPI_Datatype MPI_PAKIET_T;
-extern MPI_Datatype MPI_GRUPA_T;
-void inicjuj_typ_pakietu();
+void init_packet_type();
 
 void sendPacket(packet_t *pkt, int destination, int tag);
 
@@ -43,20 +42,15 @@ typedef struct
     int timestamps[MAX_MEMBERS];
     int groupSize;
 } group_t;
-
-#define GITEMS 3
+void initGroup(void);
+extern group_t myGroup;
+extern pthread_mutex_t groupMutex;
+void sendGroup(int destination, int tag);
+int addMember(int member, int timestamp);
 
 extern int initiators[MAX_MEMBERS];
 extern int initiatorsCount;
 extern pthread_mutex_t initiatorsMutex;
-
-extern group_t myGroup;
-extern pthread_mutex_t groupMutex;
-void sendGroup(group_t *group, int destination, int tag);
-
-int addMember(group_t* group, int member, int timestamp);
-void initGroup(); 
-
 int addInitiator(int initiator);
 
 #endif

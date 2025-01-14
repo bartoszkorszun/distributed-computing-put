@@ -5,16 +5,14 @@
 void *startKomWatek(void *ptr)
 {
     MPI_Status status;
-    packet_t pakiet;
-    group_t group;
+    packet_t packet;
     
     while ( state!=InFinish ) 
     {
-        MPI_Recv( &pakiet, 1, MPI_PAKIET_T, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
-        MPI_Recv( &group, 1, MPI_GRUPA_T, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
+        MPI_Recv( &packet, 1, MPI_PAKIET_T, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
 
         pthread_mutex_lock(&lamportMutex);
-        lamportClock = (lamportClock > pakiet.ts ? lamportClock : pakiet.ts) + 1;
+        lamportClock = (lamportClock > packet.ts ? lamportClock : packet.ts) + 1;
         pthread_mutex_unlock(&lamportMutex);
         
         switch ( status.MPI_TAG ) 
@@ -22,21 +20,21 @@ void *startKomWatek(void *ptr)
             case REQUEST: 
                 if (state == InWant)
                 {
-                    sendPacket( &pakiet, status.MPI_SOURCE, ACK );
-                    addMember( &myGroup, status.MPI_SOURCE, pakiet.ts );
+                    sendPacket( &packet, status.MPI_SOURCE, ACK );
+                    addMember( status.MPI_SOURCE, packet.ts );
                     changeState( InGroup );
-                    if (pakiet.isInitiator) 
+                    if (packet.isInitiator) 
                     {
                         addInitiator( status.MPI_SOURCE );
                     }
                 }
-                else sendPacket( &pakiet, status.MPI_SOURCE, NACK );
+                else sendPacket( &packet, status.MPI_SOURCE, NACK );
                 break;
             case ACK: 
                 if (state == InWant || state == InGroup)
                 {
                     ackCount++;
-                    addMember( &myGroup, status.MPI_SOURCE, pakiet.ts );
+                    addMember( status.MPI_SOURCE, packet.ts );
                     changeState( InGroup );
                 }
                 break;
