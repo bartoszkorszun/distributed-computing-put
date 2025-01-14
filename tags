@@ -51,6 +51,7 @@ init_packet_type	util.c	/^void init_packet_type()$/;"	f
 initiators	util.c	/^int initiators[MAX_MEMBERS];$/;"	v
 initiatorsCount	util.c	/^int initiatorsCount = 0;$/;"	v
 initiatorsMutex	util.c	/^pthread_mutex_t initiatorsMutex = PTHREAD_MUTEX_INITIALIZER;$/;"	v
+isGroupFormed	util.c	/^int isGroupFormed = 0;$/;"	v
 isInitiator	util.c	/^int isInitiator = 1;$/;"	v
 isInitiator	util.h	/^    int isInitiator;$/;"	m	struct:__anon1
 lamportClock	util.c	/^int lamportClock = 0;$/;"	v
@@ -65,8 +66,12 @@ name	util.c	/^    const char *name;$/;"	m	struct:tagNames_t	file:
 packet_t	util.h	/^} packet_t;$/;"	t	typeref:struct:__anon1
 println	main.h	29;"	d
 rank	main.c	/^int rank, size;$/;"	v
+rgrpCount	util.c	/^int rgrpCount = 0;$/;"	v
+rgrpMutex	util.c	/^pthread_mutex_t rgrpMutex = PTHREAD_MUTEX_INITIALIZER;$/;"	v
 sendGroup	util.c	/^void sendGroup(packet_t *gpkt, int destination, int tag) {$/;"	f
 sendPacket	util.c	/^void sendPacket(packet_t *pkt, int destination, int tag)$/;"	f
+sgrpCount	util.c	/^int sgrpCount = 0;$/;"	v
+sgrpMutex	util.c	/^pthread_mutex_t sgrpMutex = PTHREAD_MUTEX_INITIALIZER;$/;"	v
 size	main.c	/^int rank, size;$/;"	v
 src	util.h	/^    int src;  $/;"	m	struct:__anon1
 startKomWatek	watek_komunikacyjny.c	/^void *startKomWatek(void *ptr)$/;"	f

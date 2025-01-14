@@ -35,8 +35,14 @@ extern state_t state;
 extern pthread_mutex_t stateMut;
 extern pthread_mutex_t lamportMutex;
 extern pthread_mutex_t groupPacketMutex;
+extern int sgrpCount;
+extern int rgrpCount;
 extern int isInitiator;
 extern int lamportClock;
+extern int isGroupFormed;
+
+extern pthread_mutex_t sgrpMutex;
+extern pthread_mutex_t rgrpMutex;
 
 void changeState( state_t );
 

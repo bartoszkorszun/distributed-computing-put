@@ -48,6 +48,10 @@ void *startKomWatek(void *ptr)
                 }
                 break;
             case SGRP:
+                pthread_mutex_lock(&sgrpMutex);
+                sgrpCount++;
+                pthread_mutex_unlock(&sgrpMutex);
+
                 if (state == InGroup)
                 {   
                     pthread_mutex_lock(&groupPacketMutex);
@@ -55,13 +59,20 @@ void *startKomWatek(void *ptr)
                     {
                         addMember( packet.members[i], packet.timestamps[i] );
                     }
-                    for (int i = 0; i < myGroup.groupSize; i++) 
-                    {
-                        if (rank != myGroup.members[i]) sendGroup( &packet, myGroup.members[i], RGRP );
-                    }
                     pthread_mutex_unlock(&groupPacketMutex);
+                    if (sgrpCount == initiatorsCount) 
+                    {
+                        for (int i = 0; i < myGroup.groupSize; i++) 
+                        {
+                            if (rank != myGroup.members[i]) sendGroup( &packet, myGroup.members[i], RGRP );
+                        }
+                        isGroupFormed = 1;
+                    }
                 }
             case RGRP:
+                pthread_mutex_lock(&rgrpMutex);
+                rgrpCount++;
+                pthread_mutex_unlock(&rgrpMutex);
                 if (state == InGroup)
                 {
                     pthread_mutex_lock(&groupPacketMutex);
@@ -70,6 +81,10 @@ void *startKomWatek(void *ptr)
                         addMember( packet.members[i], packet.timestamps[i] );
                     }
                     pthread_mutex_unlock(&groupPacketMutex);
+                }
+                if (rgrpCount == myGroup.groupSize - 1) 
+                {
+                    isGroupFormed = 1;
                 }
                 break;
             default:

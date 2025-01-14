@@ -17,6 +17,8 @@ void mainLoop()
 				{
 					ackCount = 0;
 					nackCount = 0;
+					sgrpCount = 0;
+					rgrpCount = 0;
 					isInitiator = 1;
 					println("Chcę się napić")
 					packet_t *pkt = malloc(sizeof(packet_t));
@@ -53,7 +55,10 @@ void mainLoop()
 					pthread_mutex_unlock(&groupPacketMutex);
 					free(gpkt);
 				}	
-				
+				if (isGroupFormed) 
+				{
+					println("Grupa utworzona");
+				}
 				break;
 			default: 
 				break;

@@ -19,6 +19,13 @@ pthread_mutex_t initiatorsMutex = PTHREAD_MUTEX_INITIALIZER;
 
 pthread_mutex_t groupPacketMutex = PTHREAD_MUTEX_INITIALIZER;
 
+int sgrpCount = 0;
+int rgrpCount = 0;
+pthread_mutex_t sgrpMutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t rgrpMutex = PTHREAD_MUTEX_INITIALIZER;
+
+int isGroupFormed = 0;
+
 struct tagNames_t
 {
     const char *name;
