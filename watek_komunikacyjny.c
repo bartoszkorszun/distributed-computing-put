@@ -1,7 +1,6 @@
 #include "main.h"
 #include "watek_komunikacyjny.h"
 
-/* wątek komunikacyjny; zajmuje się odbiorem i reakcją na komunikaty */
 void *startKomWatek(void *ptr)
 {
     MPI_Status status;
@@ -19,7 +18,7 @@ void *startKomWatek(void *ptr)
         {
             case REQUEST: 
                 if (state == InWant)
-                {
+                {        
                     sendPacket( &packet, status.MPI_SOURCE, ACK );
                     addMember( status.MPI_SOURCE, packet.ts );
                     changeState( InGroup );
@@ -35,6 +34,10 @@ void *startKomWatek(void *ptr)
                 {
                     ackCount++;
                     addMember( status.MPI_SOURCE, packet.ts );
+                    if (packet.isInitiator) 
+                    {
+                        addInitiator( status.MPI_SOURCE );
+                    }
                     changeState( InGroup );
                 }
                 break;
@@ -46,8 +49,27 @@ void *startKomWatek(void *ptr)
                 break;
             case SGRP:
                 if (state == InGroup)
+                {   
+                    pthread_mutex_lock(&groupPacketMutex);
+                    for (int i = 0; i < packet.groupSize; i++) 
+                    {
+                        addMember( packet.members[i], packet.timestamps[i] );
+                    }
+                    for (int i = 0; i < myGroup.groupSize; i++) 
+                    {
+                        if (rank != myGroup.members[i]) sendGroup( &packet, myGroup.members[i], RGRP );
+                    }
+                    pthread_mutex_unlock(&groupPacketMutex);
+                }
+            case RGRP:
+                if (state == InGroup)
                 {
-                    println("Otrzymałem grupę od %d", status.MPI_SOURCE);
+                    pthread_mutex_lock(&groupPacketMutex);
+                    for (int i = 0; i < packet.groupSize; i++) 
+                    {
+                        addMember( packet.members[i], packet.timestamps[i] );
+                    }
+                    pthread_mutex_unlock(&groupPacketMutex);
                 }
                 break;
             default:

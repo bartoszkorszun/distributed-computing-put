@@ -2,14 +2,19 @@
 #define UTILH
 #include "main.h"
 
+#define MAX_MEMBERS 32
+
 typedef struct 
 {
     int ts;       
     int src;  
     int isInitiator;
+    int members[MAX_MEMBERS];
+    int timestamps[MAX_MEMBERS];
+    int groupSize;
 } packet_t;
 
-#define NITEMS 3
+#define NITEMS 6
 
 #define ACK     1
 #define REQUEST 2
@@ -29,12 +34,13 @@ typedef enum {InRun, InWant, InGroup, InCompetition, InFinish} state_t;
 extern state_t state;
 extern pthread_mutex_t stateMut;
 extern pthread_mutex_t lamportMutex;
+extern pthread_mutex_t groupPacketMutex;
+extern int isInitiator;
 extern int lamportClock;
 
 void changeState( state_t );
 
 extern int groupSize;
-#define MAX_MEMBERS 10
 
 typedef struct 
 {
@@ -45,9 +51,8 @@ typedef struct
 void initGroup(void);
 extern group_t myGroup;
 extern pthread_mutex_t groupMutex;
-void sendGroup(int destination, int tag);
+void sendGroup(packet_t *gpkt, int destination, int tag);
 int addMember(int member, int timestamp);
-
 extern int initiators[MAX_MEMBERS];
 extern int initiatorsCount;
 extern pthread_mutex_t initiatorsMutex;

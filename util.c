@@ -2,6 +2,8 @@
 #include "util.h"
 MPI_Datatype MPI_PAKIET_T;
 
+int isInitiator = 1;
+
 state_t state = InRun;
 pthread_mutex_t stateMut = PTHREAD_MUTEX_INITIALIZER;
 
@@ -14,6 +16,8 @@ pthread_mutex_t groupMutex = PTHREAD_MUTEX_INITIALIZER;
 int initiators[MAX_MEMBERS];
 int initiatorsCount = 0;
 pthread_mutex_t initiatorsMutex = PTHREAD_MUTEX_INITIALIZER;
+
+pthread_mutex_t groupPacketMutex = PTHREAD_MUTEX_INITIALIZER;
 
 struct tagNames_t
 {
@@ -53,13 +57,16 @@ const char *const tag2string( int tag )
 
 void init_packet_type()
 {
-    int blocklengths[NITEMS] = {1,1,1};
-    MPI_Datatype typy[NITEMS] = {MPI_INT, MPI_INT, MPI_INT};
+    int blocklengths[NITEMS] = {1,1,1,MAX_MEMBERS,MAX_MEMBERS,1};
+    MPI_Datatype typy[NITEMS] = {MPI_INT, MPI_INT, MPI_INT, MPI_INT, MPI_INT, MPI_INT};
 
     MPI_Aint     offsets[NITEMS]; 
     offsets[0] = offsetof(packet_t, ts);
     offsets[1] = offsetof(packet_t, src);
     offsets[2] = offsetof(packet_t, isInitiator);
+    offsets[3] = offsetof(packet_t, members);
+    offsets[4] = offsetof(packet_t, timestamps);
+    offsets[5] = offsetof(packet_t, groupSize);
 
     MPI_Type_create_struct(NITEMS, blocklengths, offsets, typy, &MPI_PAKIET_T);
 
@@ -87,16 +94,26 @@ void sendPacket(packet_t *pkt, int destination, int tag)
     pthread_mutex_unlock(&lamportMutex);
 
     pkt->src = rank;
+
+    if (isInitiator) pkt->isInitiator = 1;
+    else pkt->isInitiator = 0;
+
     MPI_Send( pkt, 1, MPI_PAKIET_T, destination, tag, MPI_COMM_WORLD);
     if (freepkt) free(pkt);
 }
 
-void sendGroup(int destination, int tag) {
-    packet_t *groupPacket = malloc(sizeof(packet_t));
-    groupPacket->src = myGroup.members[0];
-    groupPacket->ts = myGroup.timestamps[0];
-    groupPacket->isInitiator = 0;
-    MPI_Send(groupPacket, 1, MPI_PAKIET_T, destination, tag, MPI_COMM_WORLD);
+void sendGroup(packet_t *gpkt, int destination, int tag) {
+    int freepkt = 0;
+    if (gpkt == 0) { gpkt = malloc(sizeof(packet_t)); freepkt = 1; }
+
+    for (int i = 0; i < myGroup.groupSize; i++) {
+        gpkt->members[i] = myGroup.members[i];
+        gpkt->timestamps[i] = myGroup.timestamps[i];
+    }
+    gpkt->groupSize = myGroup.groupSize;
+
+    MPI_Send(gpkt, 1, MPI_PAKIET_T, destination, tag, MPI_COMM_WORLD);
+    if (freepkt) free(gpkt);
 }
 
 void changeState( state_t newState )
@@ -131,7 +148,6 @@ int addMember(int member, int timestamp) {
     myGroup.members[myGroup.groupSize] = member;
     myGroup.timestamps[myGroup.groupSize] = timestamp;
     myGroup.groupSize++;
-    println("Member %d added to group", myGroup.members[myGroup.groupSize - 1]);
     pthread_mutex_unlock(&groupMutex);
     return 1;
 }

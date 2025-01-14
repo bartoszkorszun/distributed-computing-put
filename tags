@@ -4,10 +4,10 @@
 !_TAG_PROGRAM_NAME	Exuberant Ctags	//
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
 !_TAG_PROGRAM_VERSION	5.9~svn20110310	//
-ACK	util.h	14;"	d
-APP_PKT	util.h	17;"	d
+ACK	util.h	19;"	d
+APP_PKT	util.h	22;"	d
 FALSE	main.h	14;"	d
-FINISH	util.h	18;"	d
+FINISH	util.h	23;"	d
 FLAGS	Makefile	/^FLAGS=-g$/;"	m
 HEADERS	Makefile	/^HEADERS=$(SOURCES:.c=.h)$/;"	m
 InCompetition	util.h	/^typedef enum {InRun, InWant, InGroup, InCompetition, InFinish} state_t;$/;"	e	enum:__anon2
@@ -17,16 +17,16 @@ InRun	util.h	/^typedef enum {InRun, InWant, InGroup, InCompetition, InFinish} st
 InWant	util.h	/^typedef enum {InRun, InWant, InGroup, InCompetition, InFinish} state_t;$/;"	e	enum:__anon2
 MAINH	main.h	2;"	d
 MAX_ARBITERS	main.h	17;"	d
-MAX_MEMBERS	util.h	37;"	d
+MAX_MEMBERS	util.h	5;"	d
 MPI_PAKIET_T	util.c	/^MPI_Datatype MPI_PAKIET_T;$/;"	v
-NACK	util.h	19;"	d
-NITEMS	util.h	12;"	d
-RELEASE	util.h	16;"	d
-REQUEST	util.h	15;"	d
-RGRP	util.h	21;"	d
+NACK	util.h	24;"	d
+NITEMS	util.h	17;"	d
+RELEASE	util.h	21;"	d
+REQUEST	util.h	20;"	d
+RGRP	util.h	26;"	d
 ROOT	main.h	19;"	d
 SEC_IN_STATE	main.h	15;"	d
-SGRP	util.h	20;"	d
+SGRP	util.h	25;"	d
 SOURCES	Makefile	/^SOURCES=$(wildcard *.c)$/;"	m
 STATE_CHANGE_PROB	main.h	16;"	d
 TRUE	main.h	13;"	d
@@ -42,6 +42,8 @@ changeState	util.c	/^void changeState( state_t newState )$/;"	f
 check_thread_support	main.c	/^void check_thread_support(int provided)$/;"	f
 finalizuj	main.c	/^void finalizuj()$/;"	f
 groupMutex	util.c	/^pthread_mutex_t groupMutex = PTHREAD_MUTEX_INITIALIZER;$/;"	v
+groupPacketMutex	util.c	/^pthread_mutex_t groupPacketMutex = PTHREAD_MUTEX_INITIALIZER;$/;"	v
+groupSize	util.h	/^    int groupSize;$/;"	m	struct:__anon1
 groupSize	util.h	/^    int groupSize;$/;"	m	struct:__anon3
 group_t	util.h	/^} group_t;$/;"	t	typeref:struct:__anon3
 initGroup	util.c	/^void initGroup(void) {$/;"	f
@@ -49,20 +51,21 @@ init_packet_type	util.c	/^void init_packet_type()$/;"	f
 initiators	util.c	/^int initiators[MAX_MEMBERS];$/;"	v
 initiatorsCount	util.c	/^int initiatorsCount = 0;$/;"	v
 initiatorsMutex	util.c	/^pthread_mutex_t initiatorsMutex = PTHREAD_MUTEX_INITIALIZER;$/;"	v
-isInitiator	main.c	/^int isInitiator = 1;$/;"	v
+isInitiator	util.c	/^int isInitiator = 1;$/;"	v
 isInitiator	util.h	/^    int isInitiator;$/;"	m	struct:__anon1
 lamportClock	util.c	/^int lamportClock = 0;$/;"	v
 lamportMutex	util.c	/^pthread_mutex_t lamportMutex = PTHREAD_MUTEX_INITIALIZER;$/;"	v
 main	main.c	/^int main(int argc, char **argv)$/;"	f
 mainLoop	watek_glowny.c	/^void mainLoop()$/;"	f
+members	util.h	/^    int members[MAX_MEMBERS];$/;"	m	struct:__anon1
 members	util.h	/^    int members[MAX_MEMBERS];$/;"	m	struct:__anon3
 myGroup	util.c	/^group_t myGroup;$/;"	v
 nackCount	main.c	/^int nackCount = 0;$/;"	v
 name	util.c	/^    const char *name;$/;"	m	struct:tagNames_t	file:
 packet_t	util.h	/^} packet_t;$/;"	t	typeref:struct:__anon1
-println	main.h	30;"	d
+println	main.h	29;"	d
 rank	main.c	/^int rank, size;$/;"	v
-sendGroup	util.c	/^void sendGroup(int destination, int tag) {$/;"	f
+sendGroup	util.c	/^void sendGroup(packet_t *gpkt, int destination, int tag) {$/;"	f
 sendPacket	util.c	/^void sendPacket(packet_t *pkt, int destination, int tag)$/;"	f
 size	main.c	/^int rank, size;$/;"	v
 src	util.h	/^    int src;  $/;"	m	struct:__anon1
@@ -75,5 +78,6 @@ tag2string	util.c	/^const char *const tag2string( int tag )$/;"	f
 tagNames	util.c	/^tagNames[] = $/;"	v	typeref:struct:tagNames_t
 tagNames_t	util.c	/^struct tagNames_t$/;"	s	file:
 threadKom	main.c	/^pthread_t threadKom;$/;"	v
+timestamps	util.h	/^    int timestamps[MAX_MEMBERS];$/;"	m	struct:__anon1
 timestamps	util.h	/^    int timestamps[MAX_MEMBERS];$/;"	m	struct:__anon3
 ts	util.h	/^    int ts;       $/;"	m	struct:__anon1

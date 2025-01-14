@@ -23,7 +23,6 @@ extern int size;
 extern int ackCount;
 extern int nackCount;
 extern int availableArbiters;
-extern int isInitiator;
 extern pthread_mutex_t arbiterMutex;
 extern pthread_t threadKom;
 
