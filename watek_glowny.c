@@ -37,12 +37,6 @@ void mainLoop()
 				}
 				break;
 			case InGroup:
-				println("Jestem w grupie")
-				println("Członkowie grupy:");
-				for (int i = 0; i < myGroup.groupSize; i++) 
-				{
-					printf(" - %d LC %d\n", myGroup.members[i], myGroup.timestamps[i]);
-				}
 				if (isInitiator)
 				{
 					packet_t *gpkt = malloc(sizeof(packet_t));
@@ -58,6 +52,16 @@ void mainLoop()
 				if (isGroupFormed) 
 				{
 					println("Grupa utworzona");
+					println("Członkowie grupy:");
+					for (int i = 0; i < myGroup.groupSize; i++) 
+					{
+						printf(" - %d LC %d\n", myGroup.members[i], myGroup.timestamps[i]);
+					}
+					chooseLeader();
+					if (isLeader) 
+					{
+						println("Jestem liderem");
+					}
 				}
 				break;
 			default: 

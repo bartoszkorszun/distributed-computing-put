@@ -25,6 +25,7 @@ pthread_mutex_t sgrpMutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t rgrpMutex = PTHREAD_MUTEX_INITIALIZER;
 
 int isGroupFormed = 0;
+int isLeader = 0;
 
 struct tagNames_t
 {
@@ -113,6 +114,10 @@ void sendGroup(packet_t *gpkt, int destination, int tag) {
     int freepkt = 0;
     if (gpkt == 0) { gpkt = malloc(sizeof(packet_t)); freepkt = 1; }
 
+    gpkt->src = rank;
+    gpkt->isInitiator = 0;
+    gpkt->ts = lamportClock;
+
     for (int i = 0; i < myGroup.groupSize; i++) {
         gpkt->members[i] = myGroup.members[i];
         gpkt->timestamps[i] = myGroup.timestamps[i];
@@ -147,6 +152,9 @@ int addMember(int member, int timestamp) {
     // Check if member already exists
     for (int i = 0; i < myGroup.groupSize; i++) {
         if (myGroup.members[i] == member) {
+            if (myGroup.timestamps[i] < timestamp) {
+                myGroup.timestamps[i] = timestamp;
+            }
             pthread_mutex_unlock(&groupMutex);
             return 0;
         }
@@ -178,4 +186,18 @@ int addInitiator(int initiator) {
     initiatorsCount++;
     pthread_mutex_unlock(&initiatorsMutex);
     return 1;
+}
+
+void chooseLeader() {
+    int leader = -1;
+    int leaderTS = __INT_MAX__;
+    for (int i = 0; i < myGroup.groupSize; i++) {
+        if (myGroup.timestamps[i] < leaderTS) {
+            leaderTS = myGroup.timestamps[i];
+            leader = myGroup.members[i];
+        }
+    }
+    if (leader == rank) {
+        isLeader = 1;
+    }
 }

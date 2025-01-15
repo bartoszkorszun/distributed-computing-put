@@ -40,6 +40,7 @@ extern int rgrpCount;
 extern int isInitiator;
 extern int lamportClock;
 extern int isGroupFormed;
+extern int isLeader;
 
 extern pthread_mutex_t sgrpMutex;
 extern pthread_mutex_t rgrpMutex;
@@ -63,5 +64,7 @@ extern int initiators[MAX_MEMBERS];
 extern int initiatorsCount;
 extern pthread_mutex_t initiatorsMutex;
 int addInitiator(int initiator);
+
+void chooseLeader();
 
 #endif

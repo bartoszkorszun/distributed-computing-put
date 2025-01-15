@@ -40,6 +40,7 @@ arbiterMutex	main.c	/^pthread_mutex_t arbiterMutex = PTHREAD_MUTEX_INITIALIZER;$
 availableArbiters	main.c	/^int availableArbiters = MAX_ARBITERS;$/;"	v
 changeState	util.c	/^void changeState( state_t newState )$/;"	f
 check_thread_support	main.c	/^void check_thread_support(int provided)$/;"	f
+chooseLeader	util.c	/^void chooseLeader() {$/;"	f
 finalizuj	main.c	/^void finalizuj()$/;"	f
 groupMutex	util.c	/^pthread_mutex_t groupMutex = PTHREAD_MUTEX_INITIALIZER;$/;"	v
 groupPacketMutex	util.c	/^pthread_mutex_t groupPacketMutex = PTHREAD_MUTEX_INITIALIZER;$/;"	v
@@ -54,6 +55,7 @@ initiatorsMutex	util.c	/^pthread_mutex_t initiatorsMutex = PTHREAD_MUTEX_INITIAL
 isGroupFormed	util.c	/^int isGroupFormed = 0;$/;"	v
 isInitiator	util.c	/^int isInitiator = 1;$/;"	v
 isInitiator	util.h	/^    int isInitiator;$/;"	m	struct:__anon1
+isLeader	util.c	/^int isLeader = 0;$/;"	v
 lamportClock	util.c	/^int lamportClock = 0;$/;"	v
 lamportMutex	util.c	/^pthread_mutex_t lamportMutex = PTHREAD_MUTEX_INITIALIZER;$/;"	v
 main	main.c	/^int main(int argc, char **argv)$/;"	f
