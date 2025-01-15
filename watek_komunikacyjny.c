@@ -87,6 +87,75 @@ void *startKomWatek(void *ptr)
                     isGroupFormed = 1;
                 }
                 break;
+            case REQ_ARBITERS:
+                if (isLeader) 
+                {
+                    pthread_mutex_lock(&stateMut);
+                    if (state == InCompetition) 
+                    {
+                        sendPacket( &packet, status.MPI_SOURCE, NACK_ARBITERS );
+                    }
+                    else 
+                    {
+                        pthread_mutex_lock(&isAskingForArbiterMutex);
+                        sendPacket( &packet, status.MPI_SOURCE, ACK_ARBITERS );
+                        pthread_mutex_unlock(&isAskingForArbiterMutex);
+                    }
+                    pthread_mutex_unlock(&stateMut);
+                }
+                else
+                {
+                    sendPacket( &packet, status.MPI_SOURCE, ACK_ARBITERS );
+                }
+                break;
+            case ACK_ARBITERS:
+                pthread_mutex_lock(&ackArbiterMutex);
+                ackArbitersCount++;
+                pthread_mutex_unlock(&ackArbiterMutex);
+                if (packet.isAskingForArbiter)
+                {
+                    addOtherLeader( status.MPI_SOURCE, packet.ts );
+                }
+                if (ackArbitersCount >= size - MAX_ARBITERS) 
+                {
+                    pthread_mutex_lock(&competitionMutex);
+                    if (canStartCompetition() && state == InGroup) 
+                    {             
+                        printCompetition();
+                        changeState( InCompetition );
+                        packet_t *pkt = malloc(sizeof(packet_t));
+                        for (int i = 0; i < size; i++) 
+                        {
+                            if (i != rank) sendPacket( pkt, i, START_COMPETITION );
+
+                        }
+                        free(pkt);
+                    }
+                    pthread_mutex_unlock(&competitionMutex);
+                }
+                break;
+            case NACK_ARBITERS:
+                pthread_mutex_lock(&nackArbiterMutex);
+                nackArbitersCount++;
+                pthread_mutex_unlock(&nackArbiterMutex);
+                break;
+            case START_COMPETITION:
+                if (state == InGroup) 
+                {
+                    for (int i = 0; i < myGroup.groupSize; i++) 
+                    {
+                        if (myGroup.members[i] == status.MPI_SOURCE) 
+                        {
+                            changeState( InCompetition );
+                            break;
+                        }
+                    }
+                }
+                if (isAskingForArbiter)
+                {
+                    removeOtherLeader( status.MPI_SOURCE );
+                }
+                break;
             default:
                 break;
             }

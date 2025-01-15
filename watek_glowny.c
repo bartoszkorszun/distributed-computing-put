@@ -6,6 +6,7 @@ void mainLoop()
     srandom(rank);
     int tag;
     int perc;
+	int askedForArbiter = 0;
 
     while (state != InFinish) 
 	{
@@ -20,6 +21,11 @@ void mainLoop()
 					sgrpCount = 0;
 					rgrpCount = 0;
 					isInitiator = 1;
+					isAskingForArbiter = 0;
+					ackArbitersCount = 0;
+					nackArbitersCount = 0;
+					initGroup();
+					initOtherLeaders();
 					println("Chcę się napić")
 					packet_t *pkt = malloc(sizeof(packet_t));
 					changeState( InWant ); 
@@ -51,18 +57,26 @@ void mainLoop()
 				}	
 				if (isGroupFormed) 
 				{
-					println("Grupa utworzona");
-					println("Członkowie grupy:");
-					for (int i = 0; i < myGroup.groupSize; i++) 
-					{
-						printf(" - %d LC %d\n", myGroup.members[i], myGroup.timestamps[i]);
-					}
 					chooseLeader();
-					if (isLeader) 
+					if (isLeader && !askedForArbiter) 
 					{
 						println("Jestem liderem");
+						packet_t *pkt = malloc(sizeof(packet_t));
+						pthread_mutex_lock(&isAskingForArbiterMutex);
+						for (int i = 0; i < size; i++) 
+						{
+							if (i != rank) sendPacket( pkt, i, REQ_ARBITERS );
+						}
+						isAskingForArbiter = 1;
+						addOtherLeader(rank, lamportClock);
+						pthread_mutex_unlock(&isAskingForArbiterMutex);
+						free(pkt);
+						askedForArbiter = 1;
 					}
 				}
+				break;
+			case InCompetition:
+				println("W trakcie zawodów")
 				break;
 			default: 
 				break;

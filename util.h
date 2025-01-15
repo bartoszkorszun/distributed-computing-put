@@ -2,6 +2,7 @@
 #define UTILH
 #include "main.h"
 
+#define MAX_ARBITERS 3
 #define MAX_MEMBERS 32
 
 typedef struct 
@@ -9,12 +10,13 @@ typedef struct
     int ts;       
     int src;  
     int isInitiator;
+    int isAskingForArbiter;
     int members[MAX_MEMBERS];
     int timestamps[MAX_MEMBERS];
     int groupSize;
 } packet_t;
 
-#define NITEMS 6
+#define NITEMS 7
 
 #define ACK     1
 #define REQUEST 2
@@ -24,6 +26,10 @@ typedef struct
 #define NACK    6
 #define SGRP    7
 #define RGRP    8
+#define REQ_ARBITERS 9
+#define ACK_ARBITERS 10
+#define NACK_ARBITERS 11
+#define START_COMPETITION 12
 
 extern MPI_Datatype MPI_PAKIET_T;
 void init_packet_type();
@@ -41,6 +47,13 @@ extern int isInitiator;
 extern int lamportClock;
 extern int isGroupFormed;
 extern int isLeader;
+extern int isAskingForArbiter;
+extern pthread_mutex_t isAskingForArbiterMutex;
+
+extern int ackArbitersCount;
+extern int nackArbitersCount;
+extern pthread_mutex_t ackArbiterMutex;
+extern pthread_mutex_t nackArbiterMutex;
 
 extern pthread_mutex_t sgrpMutex;
 extern pthread_mutex_t rgrpMutex;
@@ -55,6 +68,19 @@ typedef struct
     int timestamps[MAX_MEMBERS];
     int groupSize;
 } group_t;
+
+typedef struct 
+{
+    int leaders[MAX_MEMBERS];
+    int timestamps[MAX_MEMBERS];
+    int count;
+} leaders_t;
+
+extern leaders_t otherLeaders;
+extern pthread_mutex_t otherLeadersMutex;
+void initOtherLeaders(void);
+void addOtherLeader(int leader, int timestamp);
+void removeOtherLeader(int leader);
 void initGroup(void);
 extern group_t myGroup;
 extern pthread_mutex_t groupMutex;
@@ -65,6 +91,12 @@ extern int initiatorsCount;
 extern pthread_mutex_t initiatorsMutex;
 int addInitiator(int initiator);
 
+extern pthread_mutex_t competitionMutex;
+
+int canStartCompetition();
+
 void chooseLeader();
+
+void printCompetition();
 
 #endif

@@ -5,8 +5,6 @@
 int rank, size;
 int ackCount = 0;
 int nackCount = 0;
-int availableArbiters = MAX_ARBITERS;
-pthread_mutex_t arbiterMutex = PTHREAD_MUTEX_INITIALIZER;
 
 pthread_t threadKom;
 
@@ -50,7 +48,6 @@ int main(int argc, char **argv)
     check_thread_support(provided);
     srand(rank);
     init_packet_type(); 
-    initGroup();
 
     MPI_Comm_size(MPI_COMM_WORLD, &size);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);

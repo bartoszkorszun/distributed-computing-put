@@ -4,10 +4,11 @@
 !_TAG_PROGRAM_NAME	Exuberant Ctags	//
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
 !_TAG_PROGRAM_VERSION	5.9~svn20110310	//
-ACK	util.h	19;"	d
-APP_PKT	util.h	22;"	d
+ACK	util.h	21;"	d
+ACK_ARBITERS	util.h	30;"	d
+APP_PKT	util.h	24;"	d
 FALSE	main.h	14;"	d
-FINISH	util.h	23;"	d
+FINISH	util.h	25;"	d
 FLAGS	Makefile	/^FLAGS=-g$/;"	m
 HEADERS	Makefile	/^HEADERS=$(SOURCES:.c=.h)$/;"	m
 InCompetition	util.h	/^typedef enum {InRun, InWant, InGroup, InCompetition, InFinish} state_t;$/;"	e	enum:__anon2
@@ -16,31 +17,38 @@ InGroup	util.h	/^typedef enum {InRun, InWant, InGroup, InCompetition, InFinish} 
 InRun	util.h	/^typedef enum {InRun, InWant, InGroup, InCompetition, InFinish} state_t;$/;"	e	enum:__anon2
 InWant	util.h	/^typedef enum {InRun, InWant, InGroup, InCompetition, InFinish} state_t;$/;"	e	enum:__anon2
 MAINH	main.h	2;"	d
-MAX_ARBITERS	main.h	17;"	d
-MAX_MEMBERS	util.h	5;"	d
+MAX_ARBITERS	util.h	5;"	d
+MAX_MEMBERS	util.h	6;"	d
 MPI_PAKIET_T	util.c	/^MPI_Datatype MPI_PAKIET_T;$/;"	v
-NACK	util.h	24;"	d
-NITEMS	util.h	17;"	d
-RELEASE	util.h	21;"	d
-REQUEST	util.h	20;"	d
-RGRP	util.h	26;"	d
-ROOT	main.h	19;"	d
+NACK	util.h	26;"	d
+NACK_ARBITERS	util.h	31;"	d
+NITEMS	util.h	19;"	d
+RELEASE	util.h	23;"	d
+REQUEST	util.h	22;"	d
+REQ_ARBITERS	util.h	29;"	d
+RGRP	util.h	28;"	d
+ROOT	main.h	18;"	d
 SEC_IN_STATE	main.h	15;"	d
-SGRP	util.h	25;"	d
+SGRP	util.h	27;"	d
 SOURCES	Makefile	/^SOURCES=$(wildcard *.c)$/;"	m
+START_COMPETITION	util.h	32;"	d
 STATE_CHANGE_PROB	main.h	16;"	d
 TRUE	main.h	13;"	d
 UTILH	util.h	2;"	d
 WATEK_GLOWNY_H	watek_glowny.h	2;"	d
 WATEK_KOMUNIKACYJNY_H	watek_komunikacyjny.h	2;"	d
+ackArbiterMutex	util.c	/^pthread_mutex_t ackArbiterMutex = PTHREAD_MUTEX_INITIALIZER;$/;"	v
+ackArbitersCount	util.c	/^int ackArbitersCount = 0;$/;"	v
 ackCount	main.c	/^int ackCount = 0;$/;"	v
 addInitiator	util.c	/^int addInitiator(int initiator) {$/;"	f
 addMember	util.c	/^int addMember(int member, int timestamp) {$/;"	f
-arbiterMutex	main.c	/^pthread_mutex_t arbiterMutex = PTHREAD_MUTEX_INITIALIZER;$/;"	v
-availableArbiters	main.c	/^int availableArbiters = MAX_ARBITERS;$/;"	v
+addOtherLeader	util.c	/^void addOtherLeader(int leader, int timestamp) {$/;"	f
+canStartCompetition	util.c	/^int canStartCompetition() {$/;"	f
 changeState	util.c	/^void changeState( state_t newState )$/;"	f
 check_thread_support	main.c	/^void check_thread_support(int provided)$/;"	f
 chooseLeader	util.c	/^void chooseLeader() {$/;"	f
+competitionMutex	util.c	/^pthread_mutex_t competitionMutex = PTHREAD_MUTEX_INITIALIZER;$/;"	v
+count	util.h	/^    int count;$/;"	m	struct:__anon4
 finalizuj	main.c	/^void finalizuj()$/;"	f
 groupMutex	util.c	/^pthread_mutex_t groupMutex = PTHREAD_MUTEX_INITIALIZER;$/;"	v
 groupPacketMutex	util.c	/^pthread_mutex_t groupPacketMutex = PTHREAD_MUTEX_INITIALIZER;$/;"	v
@@ -48,26 +56,38 @@ groupSize	util.h	/^    int groupSize;$/;"	m	struct:__anon1
 groupSize	util.h	/^    int groupSize;$/;"	m	struct:__anon3
 group_t	util.h	/^} group_t;$/;"	t	typeref:struct:__anon3
 initGroup	util.c	/^void initGroup(void) {$/;"	f
+initOtherLeaders	util.c	/^void initOtherLeaders(void) {$/;"	f
 init_packet_type	util.c	/^void init_packet_type()$/;"	f
 initiators	util.c	/^int initiators[MAX_MEMBERS];$/;"	v
 initiatorsCount	util.c	/^int initiatorsCount = 0;$/;"	v
 initiatorsMutex	util.c	/^pthread_mutex_t initiatorsMutex = PTHREAD_MUTEX_INITIALIZER;$/;"	v
+isAskingForArbiter	util.c	/^int isAskingForArbiter = 0;$/;"	v
+isAskingForArbiter	util.h	/^    int isAskingForArbiter;$/;"	m	struct:__anon1
+isAskingForArbiterMutex	util.c	/^pthread_mutex_t isAskingForArbiterMutex = PTHREAD_MUTEX_INITIALIZER;$/;"	v
 isGroupFormed	util.c	/^int isGroupFormed = 0;$/;"	v
 isInitiator	util.c	/^int isInitiator = 1;$/;"	v
 isInitiator	util.h	/^    int isInitiator;$/;"	m	struct:__anon1
 isLeader	util.c	/^int isLeader = 0;$/;"	v
 lamportClock	util.c	/^int lamportClock = 0;$/;"	v
 lamportMutex	util.c	/^pthread_mutex_t lamportMutex = PTHREAD_MUTEX_INITIALIZER;$/;"	v
+leaders	util.h	/^    int leaders[MAX_MEMBERS];$/;"	m	struct:__anon4
+leaders_t	util.h	/^} leaders_t;$/;"	t	typeref:struct:__anon4
 main	main.c	/^int main(int argc, char **argv)$/;"	f
 mainLoop	watek_glowny.c	/^void mainLoop()$/;"	f
 members	util.h	/^    int members[MAX_MEMBERS];$/;"	m	struct:__anon1
 members	util.h	/^    int members[MAX_MEMBERS];$/;"	m	struct:__anon3
 myGroup	util.c	/^group_t myGroup;$/;"	v
+nackArbiterMutex	util.c	/^pthread_mutex_t nackArbiterMutex = PTHREAD_MUTEX_INITIALIZER;$/;"	v
+nackArbitersCount	util.c	/^int nackArbitersCount = 0;$/;"	v
 nackCount	main.c	/^int nackCount = 0;$/;"	v
 name	util.c	/^    const char *name;$/;"	m	struct:tagNames_t	file:
+otherLeaders	util.c	/^leaders_t otherLeaders;$/;"	v
+otherLeadersMutex	util.c	/^pthread_mutex_t otherLeadersMutex = PTHREAD_MUTEX_INITIALIZER;$/;"	v
 packet_t	util.h	/^} packet_t;$/;"	t	typeref:struct:__anon1
-println	main.h	29;"	d
+printCompetition	util.c	/^void printCompetition() {$/;"	f
+println	main.h	26;"	d
 rank	main.c	/^int rank, size;$/;"	v
+removeOtherLeader	util.c	/^void removeOtherLeader(int leader) {$/;"	f
 rgrpCount	util.c	/^int rgrpCount = 0;$/;"	v
 rgrpMutex	util.c	/^pthread_mutex_t rgrpMutex = PTHREAD_MUTEX_INITIALIZER;$/;"	v
 sendGroup	util.c	/^void sendGroup(packet_t *gpkt, int destination, int tag) {$/;"	f
@@ -87,4 +107,5 @@ tagNames_t	util.c	/^struct tagNames_t$/;"	s	file:
 threadKom	main.c	/^pthread_t threadKom;$/;"	v
 timestamps	util.h	/^    int timestamps[MAX_MEMBERS];$/;"	m	struct:__anon1
 timestamps	util.h	/^    int timestamps[MAX_MEMBERS];$/;"	m	struct:__anon3
+timestamps	util.h	/^    int timestamps[MAX_MEMBERS];$/;"	m	struct:__anon4
 ts	util.h	/^    int ts;       $/;"	m	struct:__anon1

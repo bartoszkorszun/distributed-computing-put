@@ -26,6 +26,17 @@ pthread_mutex_t rgrpMutex = PTHREAD_MUTEX_INITIALIZER;
 
 int isGroupFormed = 0;
 int isLeader = 0;
+int isAskingForArbiter = 0;
+pthread_mutex_t isAskingForArbiterMutex = PTHREAD_MUTEX_INITIALIZER;
+
+int ackArbitersCount = 0;
+int nackArbitersCount = 0;
+pthread_mutex_t ackArbiterMutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t nackArbiterMutex = PTHREAD_MUTEX_INITIALIZER;
+
+leaders_t otherLeaders;
+pthread_mutex_t otherLeadersMutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t competitionMutex = PTHREAD_MUTEX_INITIALIZER;
 
 struct tagNames_t
 {
@@ -65,16 +76,17 @@ const char *const tag2string( int tag )
 
 void init_packet_type()
 {
-    int blocklengths[NITEMS] = {1,1,1,MAX_MEMBERS,MAX_MEMBERS,1};
-    MPI_Datatype typy[NITEMS] = {MPI_INT, MPI_INT, MPI_INT, MPI_INT, MPI_INT, MPI_INT};
+    int blocklengths[NITEMS] = {1,1,1,1,MAX_MEMBERS,MAX_MEMBERS,1};
+    MPI_Datatype typy[NITEMS] = {MPI_INT, MPI_INT, MPI_INT, MPI_INT, MPI_INT, MPI_INT, MPI_INT};
 
     MPI_Aint     offsets[NITEMS]; 
     offsets[0] = offsetof(packet_t, ts);
     offsets[1] = offsetof(packet_t, src);
     offsets[2] = offsetof(packet_t, isInitiator);
-    offsets[3] = offsetof(packet_t, members);
-    offsets[4] = offsetof(packet_t, timestamps);
-    offsets[5] = offsetof(packet_t, groupSize);
+    offsets[3] = offsetof(packet_t, isAskingForArbiter);
+    offsets[4] = offsetof(packet_t, members);
+    offsets[5] = offsetof(packet_t, timestamps);
+    offsets[6] = offsetof(packet_t, groupSize);
 
     MPI_Type_create_struct(NITEMS, blocklengths, offsets, typy, &MPI_PAKIET_T);
 
@@ -91,6 +103,46 @@ void initGroup(void) {
     pthread_mutex_unlock(&groupMutex);
 }
 
+void initOtherLeaders(void) {
+    for (int i = 0; i < MAX_MEMBERS; i++) {
+        otherLeaders.leaders[i] = -1;
+        otherLeaders.timestamps[i] = -1;
+        otherLeaders.count = 0;
+    }
+}
+
+void addOtherLeader(int leader, int timestamp) {
+    pthread_mutex_lock(&otherLeadersMutex);
+    for (int i = 0; i < MAX_MEMBERS; i++) {
+        if (otherLeaders.leaders[i] == leader) {
+            pthread_mutex_unlock(&otherLeadersMutex);
+            return;
+        }
+    }
+    otherLeaders.leaders[otherLeaders.count] = leader;
+    otherLeaders.timestamps[otherLeaders.count] = timestamp;
+    otherLeaders.count++;
+    pthread_mutex_unlock(&otherLeadersMutex);
+}
+
+void removeOtherLeader(int leader) {
+    pthread_mutex_lock(&otherLeadersMutex);
+    for (int i = 0; i < otherLeaders.count; i++) {
+        if (otherLeaders.leaders[i] == leader) {
+            for (int j = i; j < otherLeaders.count - 1; j++) {
+                otherLeaders.leaders[j] = otherLeaders.leaders[j + 1];
+                otherLeaders.timestamps[j] = otherLeaders.timestamps[j + 1];
+            }
+            otherLeaders.leaders[otherLeaders.count - 1] = -1;
+            otherLeaders.timestamps[otherLeaders.count - 1] = -1;
+            otherLeaders.count--;
+            pthread_mutex_unlock(&otherLeadersMutex);
+            return;
+        }
+    }
+    pthread_mutex_unlock(&otherLeadersMutex);
+}
+
 void sendPacket(packet_t *pkt, int destination, int tag)
 {
     int freepkt = 0;
@@ -103,8 +155,9 @@ void sendPacket(packet_t *pkt, int destination, int tag)
 
     pkt->src = rank;
 
-    if (isInitiator) pkt->isInitiator = 1;
-    else pkt->isInitiator = 0;
+    pkt->isInitiator = isInitiator;
+
+    pkt->isAskingForArbiter = isAskingForArbiter;
 
     MPI_Send( pkt, 1, MPI_PAKIET_T, destination, tag, MPI_COMM_WORLD);
     if (freepkt) free(pkt);
@@ -200,4 +253,34 @@ void chooseLeader() {
     if (leader == rank) {
         isLeader = 1;
     }
+}
+
+int canStartCompetition() {
+    pthread_mutex_lock(&otherLeadersMutex);
+    int minTS = __INT_MAX__;
+    int leader = -1;
+    for (int i = 0; i < otherLeaders.count; i++) 
+    {
+        if (otherLeaders.timestamps[i] < minTS) 
+        {
+            minTS = otherLeaders.timestamps[i];
+            leader = otherLeaders.leaders[i];
+        }
+    }
+    if (leader == rank) 
+    {
+        pthread_mutex_unlock(&otherLeadersMutex);
+        return 1;
+    } 
+    pthread_mutex_unlock(&otherLeadersMutex);
+    return 0;
+}
+
+void printCompetition() {
+    pthread_mutex_lock(&groupMutex);
+    println("Zaczynam zawody\nLeader: %d\nUczestnicy:", rank);
+    for (int i = 0; i < myGroup.groupSize; i++) {
+        printf(" - %d\n", myGroup.members[i]);
+    }
+    pthread_mutex_unlock(&groupMutex);
 }
