@@ -3,8 +3,6 @@
 #include "watek_komunikacyjny.h"
 
 int rank, size;
-int ackCount = 0;
-int nackCount = 0;
 
 pthread_t threadKom;
 
