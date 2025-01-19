@@ -53,7 +53,15 @@ void *startKomWatek(void *ptr)
             case NACK:
                 if (state == InWant) 
                 {
+                    pthread_mutex_lock(&nackMutex);
                     nackCount++;
+                    if (nackCount == size-1) 
+                    {
+                        pthread_mutex_lock(&isInitiatorMutex);
+                        isInitiator = 0;
+                        pthread_mutex_unlock(&isInitiatorMutex);
+                    }
+                    pthread_mutex_unlock(&nackMutex);
                 }
                 break;
             // JEŻELI JESTEM INICJATOREM TO MOGĘ OTRZYMAĆ GRUPĘ OD INNEGO INICJATORA
@@ -74,39 +82,33 @@ void *startKomWatek(void *ptr)
                     pthread_mutex_unlock(&groupPacketMutex);
                     if (sgrpCount == initiatorsCount) 
                     {
+                        isGroupFormed = 1;
                         for (int i = 0; i < myGroup.groupSize; i++) 
                         {
                             if (rank != myGroup.members[i]) sendGroup( &packet, myGroup.members[i], RGRP );
                         }
-                        isGroupFormed = 1;
                     }
                 }
+                break;
             // JEŻELI INICJATORZY SIĘ DOGADALI WYSYŁAJĄ WIADOMOŚĆ RGRP DO WSZYSTKICH CZŁONKÓW GRUPY
             // CZŁONKOWIE AKTUALIZUJĄ SWOJE GRUPY
             // JEŻELI ILOŚĆ TAKICH WIADOMOŚĆI JEST RÓWNA ILOŚCI INICJAOTRÓW TO GRUPA JEST GOTOWA
             case RGRP:
-                pthread_mutex_lock(&rgrpMutex);
-                rgrpCount++;
-                pthread_mutex_unlock(&rgrpMutex);
-                if (state == InGroup)
+                pthread_mutex_lock(&groupPacketMutex);
+                for (int i = 0; i < packet.groupSize; i++) 
                 {
-                    pthread_mutex_lock(&groupPacketMutex);
-                    for (int i = 0; i < packet.groupSize; i++) 
-                    {
-                        addMember( packet.members[i], packet.timestamps[i] );
-                    }
-                    pthread_mutex_unlock(&groupPacketMutex);
+                    addMember( packet.members[i], packet.timestamps[i] );
                 }
-                // TODO
-                if (rgrpCount == myGroup.groupSize - 1) 
-                {
-                    isGroupFormed = 1;
-                }
+                pthread_mutex_unlock(&groupPacketMutex);
+                pthread_mutex_lock(&isGroupFormedMutex);
+                isGroupFormed = 1;
+                pthread_mutex_unlock(&isGroupFormedMutex);
                 break;
             // ZAPYTANIE O WOLNYCH ARBITRÓW
             // JEŻELI JESTEM LIDEREM I BIORĘ UDZIAŁ W ZAWODACH TO WYSYŁAM NACK
             // W PRZECIWNYM PRZYPADKU WYSYŁAM ACK
             case REQ_ARBITERS:
+                pthread_mutex_lock(&isLeaderMutex);
                 if (isLeader) 
                 {
                     pthread_mutex_lock(&stateMut);
@@ -126,6 +128,7 @@ void *startKomWatek(void *ptr)
                 {
                     sendPacket( &packet, status.MPI_SOURCE, ACK_ARBITERS );
                 }
+                pthread_mutex_unlock(&isLeaderMutex);
                 break;
             // JEŻELI OTRZYMUJĘ TAKI KOMUNIKAT, TO OZNACZA, ŻE JESTEM LIDEREM
             // SPRAWDZAM, CZY LICZBA ACK POZWALA NA ROZPOCZĘCIE ZAWODÓW
@@ -136,27 +139,29 @@ void *startKomWatek(void *ptr)
                 pthread_mutex_lock(&ackArbiterMutex);
                 ackArbitersCount++;
                 pthread_mutex_unlock(&ackArbiterMutex);
+                println("ack count: %d, size %d, arbiters %d", ackArbitersCount, size, MAX_ARBITERS);
                 if (packet.isAskingForArbiter)
                 {
                     addOtherLeader( status.MPI_SOURCE, packet.ts );
                 }
+                pthread_mutex_lock(&ackArbiterMutex);
                 if (ackArbitersCount >= size - MAX_ARBITERS) 
                 {
                     pthread_mutex_lock(&competitionMutex);
                     if (canStartCompetition() && state == InGroup) 
                     {             
                         printCompetition();
-                        changeState( InCompetition );
                         packet_t *pkt = malloc(sizeof(packet_t));
                         for (int i = 0; i < size; i++) 
                         {
                             if (i != rank) sendPacket( pkt, i, START_COMPETITION );
-
                         }
+                        changeState( InCompetition );
                         free(pkt);
                     }
                     pthread_mutex_unlock(&competitionMutex);
                 }
+                pthread_mutex_unlock(&ackArbiterMutex);
                 break;
             // JEŻELI OTRZYMUJĘ TAKI KOMUNIKAT, TO OZNACZA, ŻE JESTEM LIDEREM
             // LICZĘ NACK
@@ -181,32 +186,36 @@ void *startKomWatek(void *ptr)
                         }
                     }
                 }
+                pthread_mutex_lock(&isAskingForArbiterMutex);
                 if (isAskingForArbiter && isLeader)
                 {
                     removeOtherLeader( status.MPI_SOURCE );
                 }
+                pthread_mutex_unlock(&isAskingForArbiterMutex);
                 break;
             // LIDER PO ZAKOŃCZENIU ZAWODÓW WYSYŁA TAKĄ WIADOMOŚĆ
             // JEŻELI JESTEM LIDEREM I ZAWODY SIĘ SKOŃCZYŁY TO SPRAWDZAM, CZY MOGĘ ZACZĄĆ ZAWODY
             // JEŻELI TAK TO ZMIENIAM STAN NA InCompetition
             // I WYSYŁAM WIADOMOŚĆ DO WSZYSTKICH PROCESÓW O ROZPOCZĘCIU ZAWODÓW
             case END_COMPETITION:
+                pthread_mutex_lock(&isLeaderMutex);
                 if (isLeader) 
                 {
                     pthread_mutex_lock(&competitionMutex);
                     if (canStartCompetition() && state == InGroup) 
                     {             
                         printCompetition();
-                        changeState( InCompetition );
                         packet_t *pkt = malloc(sizeof(packet_t));
                         for (int i = 0; i < size; i++) 
                         {
                             if (i != rank) sendPacket( pkt, i, START_COMPETITION );
                         }
                         free(pkt);
+                        changeState( InCompetition );
                     }
                     pthread_mutex_unlock(&competitionMutex);
                 }
+                pthread_mutex_unlock(&isLeaderMutex);
                 break;
             default:
                 break;

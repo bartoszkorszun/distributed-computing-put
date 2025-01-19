@@ -41,6 +41,7 @@ WATEK_KOMUNIKACYJNY_H	watek_komunikacyjny.h	2;"	d
 ackArbiterMutex	util.c	/^pthread_mutex_t ackArbiterMutex = PTHREAD_MUTEX_INITIALIZER;$/;"	v
 ackArbitersCount	util.c	/^int ackArbitersCount = 0;$/;"	v
 ackCount	util.c	/^int ackCount = 0;$/;"	v
+ackMutex	util.c	/^pthread_mutex_t ackMutex = PTHREAD_MUTEX_INITIALIZER;$/;"	v
 addInitiator	util.c	/^int addInitiator(int initiator) $/;"	f
 addMember	util.c	/^int addMember(int member, int timestamp) $/;"	f
 addOtherLeader	util.c	/^void addOtherLeader(int leader, int timestamp) $/;"	f
@@ -66,9 +67,12 @@ isAskingForArbiter	util.c	/^int isAskingForArbiter = 0;$/;"	v
 isAskingForArbiter	util.h	/^    int isAskingForArbiter;$/;"	m	struct:__anon1
 isAskingForArbiterMutex	util.c	/^pthread_mutex_t isAskingForArbiterMutex = PTHREAD_MUTEX_INITIALIZER;$/;"	v
 isGroupFormed	util.c	/^int isGroupFormed = 0;$/;"	v
+isGroupFormedMutex	util.c	/^pthread_mutex_t isGroupFormedMutex = PTHREAD_MUTEX_INITIALIZER;$/;"	v
 isInitiator	util.c	/^int isInitiator = 1;$/;"	v
 isInitiator	util.h	/^    int isInitiator;$/;"	m	struct:__anon1
+isInitiatorMutex	util.c	/^pthread_mutex_t isInitiatorMutex = PTHREAD_MUTEX_INITIALIZER;$/;"	v
 isLeader	util.c	/^int isLeader = 0;$/;"	v
+isLeaderMutex	util.c	/^pthread_mutex_t isLeaderMutex = PTHREAD_MUTEX_INITIALIZER;$/;"	v
 lamportClock	util.c	/^int lamportClock = 0;$/;"	v
 lamportMutex	util.c	/^pthread_mutex_t lamportMutex = PTHREAD_MUTEX_INITIALIZER;$/;"	v
 leaders	util.h	/^    int leaders[MAX_MEMBERS];$/;"	m	struct:__anon3
@@ -81,6 +85,7 @@ myGroup	util.c	/^group_t myGroup;$/;"	v
 nackArbiterMutex	util.c	/^pthread_mutex_t nackArbiterMutex = PTHREAD_MUTEX_INITIALIZER;$/;"	v
 nackArbitersCount	util.c	/^int nackArbitersCount = 0;$/;"	v
 nackCount	util.c	/^int nackCount = 0;$/;"	v
+nackMutex	util.c	/^pthread_mutex_t nackMutex = PTHREAD_MUTEX_INITIALIZER;$/;"	v
 name	util.c	/^    const char *name;$/;"	m	struct:tagNames_t	file:
 otherLeaders	util.c	/^leaders_t otherLeaders;$/;"	v
 otherLeadersMutex	util.c	/^pthread_mutex_t otherLeadersMutex = PTHREAD_MUTEX_INITIALIZER;$/;"	v
@@ -91,8 +96,6 @@ rank	main.c	/^int rank, size;$/;"	v
 removeOtherLeader	util.c	/^void removeOtherLeader(int leader) $/;"	f
 resetInitiators	util.c	/^void resetInitiators() $/;"	f
 resetValues	util.c	/^void resetValues() $/;"	f
-rgrpCount	util.c	/^int rgrpCount = 0;$/;"	v
-rgrpMutex	util.c	/^pthread_mutex_t rgrpMutex = PTHREAD_MUTEX_INITIALIZER;$/;"	v
 sendGroup	util.c	/^void sendGroup(packet_t *gpkt, int destination, int tag) $/;"	f
 sendPacket	util.c	/^void sendPacket(packet_t *pkt, int destination, int tag)$/;"	f
 sgrpCount	util.c	/^int sgrpCount = 0;$/;"	v

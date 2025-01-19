@@ -81,14 +81,17 @@ extern int isLeader;
 extern int lamportClock;
 extern int nackArbitersCount;
 extern int nackCount;
-extern int rgrpCount;
 extern int sgrpCount;
 
 extern pthread_mutex_t ackArbiterMutex;
+extern pthread_mutex_t ackMutex;
 extern pthread_mutex_t isAskingForArbiterMutex;
+extern pthread_mutex_t isGroupFormedMutex;
+extern pthread_mutex_t isInitiatorMutex;
+extern pthread_mutex_t isLeaderMutex;
 extern pthread_mutex_t lamportMutex;
 extern pthread_mutex_t nackArbiterMutex;
-extern pthread_mutex_t rgrpMutex;
+extern pthread_mutex_t nackMutex;
 extern pthread_mutex_t sgrpMutex;
 
 // INITIATORS

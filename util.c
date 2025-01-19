@@ -12,14 +12,17 @@ int isLeader = 0;
 int lamportClock = 0;
 int nackArbitersCount = 0;
 int nackCount = 0;
-int rgrpCount = 0;
 int sgrpCount = 0;
 
 pthread_mutex_t ackArbiterMutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t ackMutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t isAskingForArbiterMutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t isGroupFormedMutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t isInitiatorMutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t isLeaderMutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t lamportMutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t nackArbiterMutex = PTHREAD_MUTEX_INITIALIZER;
-pthread_mutex_t rgrpMutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t nackMutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t sgrpMutex = PTHREAD_MUTEX_INITIALIZER;
 
 int initiators[MAX_MEMBERS];
@@ -229,7 +232,10 @@ void sendPacket(packet_t *pkt, int destination, int tag)
 
     pkt->src = rank;
 
-    pkt->isInitiator = isInitiator;
+    pthread_mutex_lock(&isInitiatorMutex);
+    if (state == InWant) pkt->isInitiator = isInitiator;
+    else pkt->isInitiator = 0;
+    pthread_mutex_unlock(&isInitiatorMutex);
 
     pkt->isAskingForArbiter = isAskingForArbiter;
 
@@ -244,7 +250,9 @@ void sendGroup(packet_t *gpkt, int destination, int tag)
 
     gpkt->src = rank;
     gpkt->isInitiator = 0;
+    pthread_mutex_lock(&lamportMutex);
     gpkt->ts = lamportClock;
+    pthread_mutex_unlock(&lamportMutex);
 
     for (int i = 0; i < myGroup.groupSize; i++) 
     {
@@ -274,6 +282,7 @@ void changeState( state_t newState )
 void chooseLeader() {
     int leader = -1;
     int leaderTS = __INT_MAX__;
+    pthread_mutex_lock(&groupMutex);
     for (int i = 0; i < myGroup.groupSize; i++) 
     {
         if (myGroup.timestamps[i] < leaderTS) 
@@ -282,6 +291,7 @@ void chooseLeader() {
             leader = myGroup.members[i];
         }
     }
+    pthread_mutex_unlock(&groupMutex);
     if (leader == rank) 
     {
         isLeader = 1;
@@ -310,30 +320,51 @@ int canStartCompetition() {
 }
 
 void printCompetition() {
-    pthread_mutex_lock(&groupMutex);
+    println("ackCount: %d, size %d, arbiters: %d", ackArbitersCount, size, MAX_ARBITERS);
     println("Zaczynam zawody\nLeader: %d\nUczestnicy:", rank);
     for (int i = 0; i < myGroup.groupSize; i++) 
     {
         printf(" - %d\n", myGroup.members[i]);
     }
-    pthread_mutex_unlock(&groupMutex);
 }
 
 void resetValues() 
 {
+    pthread_mutex_lock(&ackMutex);
     ackCount = 0;
+    pthread_mutex_unlock(&ackMutex);
+
+    pthread_mutex_lock(&nackMutex);
     nackCount = 0;
+    pthread_mutex_unlock(&nackMutex);
 
+    pthread_mutex_lock(&ackArbiterMutex);
     ackArbitersCount = 0;
+    pthread_mutex_unlock(&ackArbiterMutex);
+
+    pthread_mutex_lock(&nackArbiterMutex);
     nackArbitersCount = 0;
+    pthread_mutex_unlock(&nackArbiterMutex);
 
+    pthread_mutex_lock(&isAskingForArbiterMutex);
     isAskingForArbiter = 0;
-    isGroupFormed = 0;
-    isInitiator = 1;
-    isLeader = 0;
+    pthread_mutex_unlock(&isAskingForArbiterMutex);
 
-    rgrpCount = 0;
+    pthread_mutex_lock(&isGroupFormedMutex);
+    isGroupFormed = 0;
+    pthread_mutex_unlock(&isGroupFormedMutex);
+
+    pthread_mutex_lock(&isInitiatorMutex);
+    isInitiator = 1;
+    pthread_mutex_unlock(&isInitiatorMutex);
+
+    pthread_mutex_lock(&isLeaderMutex);
+    isLeader = 0;
+    pthread_mutex_unlock(&isLeaderMutex);
+
+    pthread_mutex_lock(&sgrpMutex);
     sgrpCount = 0;
+    pthread_mutex_unlock(&sgrpMutex);
 
     resetInitiators();
     initGroup();
