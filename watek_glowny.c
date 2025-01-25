@@ -100,6 +100,10 @@ void mainLoop()
 				}
 				pthread_mutex_unlock(&isLeaderMutex);
 				changeState( InRun );
+				resetValues();
+				hasAskedForArbiter = 0;
+				hasSentGroup = 0;
+				inCompetition = 0;
 				}
 				break;
 			default: 
